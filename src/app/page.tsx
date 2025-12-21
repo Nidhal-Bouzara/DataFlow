@@ -3,6 +3,9 @@
 import { useState } from "react"
 import FileUpload, { DropZone, FileError, FileList, FileInfo } from "@/components/ui/file-upload"
 
+const MAX_FILE_COUNT = 20
+const MAX_FILE_SIZE_MB = 10
+
 export default function Home() {
   const [uploadFiles, setUploadFiles] = useState<FileInfo[]>([])
 
@@ -22,7 +25,7 @@ export default function Home() {
             File Upload Demo
           </h1>
           <p className="text-zinc-600 dark:text-zinc-400">
-            Upload up to 3 files (PDF, DOCX, DOC, PNG, JPG, JPEG) with a maximum size of 10MB each.
+            Upload up to {MAX_FILE_COUNT} files (PDF, DOCX, DOC, PNG, JPG, JPEG) with a maximum size of {MAX_FILE_SIZE_MB}MB each.
           </p>
         </div>
 
@@ -31,12 +34,12 @@ export default function Home() {
           onFileSelectChange={onFileSelectChange}
           multiple={true}
           accept=".pdf,.docx,.doc,.png,.jpg,.jpeg"
-          maxSize={10}
-          maxCount={3}
+          maxSize={MAX_FILE_SIZE_MB}
+          maxCount={MAX_FILE_COUNT}
           disabled={false}
         >
           <div className="space-y-4">
-            <DropZone prompt="Click or drop up to 3 files to upload" />
+            <DropZone prompt={`Click or drop up to ${MAX_FILE_COUNT} files to upload`} />
             <FileError />
             <FileList 
               onClear={() => {
