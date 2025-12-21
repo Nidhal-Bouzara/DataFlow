@@ -5,12 +5,19 @@ import { generateUniqueId } from "@/lib/utils";
 // Generic node types for extensible workflow editor
 export type NodeType = "asset" | "action" | "condition";
 
+export interface FileAsset {
+  name: string;
+  size: number;
+  type: string;
+}
+
 export interface WorkflowNode extends Node {
   data: {
     label: string;
     description?: string;
     nodeType: NodeType;
     config?: Record<string, unknown>;
+    file?: FileAsset;
   };
 }
 
@@ -27,6 +34,7 @@ interface WorkflowState {
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
   addNode: (nodeType: NodeType, position: { x: number; y: number }) => void;
+  addFileAssetNode: (file: FileAsset, position: { x: number; y: number }) => void;
   removeNode: (nodeId: string) => void;
   selectNode: (nodeId: string | null) => void;
   updateNodeData: (nodeId: string, data: Partial<WorkflowNode["data"]>) => void;
@@ -59,6 +67,15 @@ export const nodeDefaults: Record<NodeType, { label: string; description: string
 // Start with empty canvas - ready for user to build workflows
 const initialNodes: WorkflowNode[] = [];
 const initialEdges: Edge[] = [];
+
+// Helper function to format file size
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
 
 export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   nodes: initialNodes,
@@ -97,6 +114,21 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         label: defaults.label,
         description: defaults.description,
         nodeType,
+      },
+    };
+    set({ nodes: [...get().nodes, newNode] });
+  },
+
+  addFileAssetNode: (file, position) => {
+    const newNode: WorkflowNode = {
+      id: generateUniqueId("asset"),
+      type: "asset",
+      position,
+      data: {
+        label: file.name,
+        description: formatFileSize(file.size),
+        nodeType: "asset",
+        file,
       },
     };
     set({ nodes: [...get().nodes, newNode] });
