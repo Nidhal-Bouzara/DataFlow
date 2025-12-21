@@ -3,7 +3,7 @@ import { Node, Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges, No
 import { generateUniqueId } from "@/lib/utils";
 
 // Generic node types for extensible workflow editor
-export type NodeType = "asset" | "action" | "condition";
+export type NodeType = "asset" | "assetStack" | "action" | "condition";
 
 export interface FileAsset {
   name: string;
@@ -18,6 +18,7 @@ export interface WorkflowNode extends Node {
     nodeType: NodeType;
     config?: Record<string, unknown>;
     file?: FileAsset;
+    files?: FileAsset[]; // For stacked assets
   };
 }
 
@@ -35,6 +36,7 @@ interface WorkflowState {
   onConnect: (connection: Connection) => void;
   addNode: (nodeType: NodeType, position: { x: number; y: number }) => void;
   addFileAssetNode: (file: FileAsset, position: { x: number; y: number }) => void;
+  addStackedFileAssetNode: (files: FileAsset[], position: { x: number; y: number }) => void;
   removeNode: (nodeId: string) => void;
   selectNode: (nodeId: string | null) => void;
   updateNodeData: (nodeId: string, data: Partial<WorkflowNode["data"]>) => void;
@@ -47,6 +49,12 @@ export const nodeDefaults: Record<NodeType, { label: string; description: string
   asset: {
     label: "Asset",
     description: "Data source or file",
+    bgColor: "bg-blue-50",
+    borderColor: "border-blue-200",
+  },
+  assetStack: {
+    label: "Asset Stack",
+    description: "Multiple files",
     bgColor: "bg-blue-50",
     borderColor: "border-blue-200",
   },
@@ -129,6 +137,22 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         description: formatFileSize(file.size),
         nodeType: "asset",
         file,
+      },
+    };
+    set({ nodes: [...get().nodes, newNode] });
+  },
+
+  addStackedFileAssetNode: (files, position) => {
+    const totalSize = files.reduce((acc, f) => acc + f.size, 0);
+    const newNode: WorkflowNode = {
+      id: generateUniqueId("assetStack"),
+      type: "assetStack",
+      position,
+      data: {
+        label: `${files.length} files`,
+        description: formatFileSize(totalSize),
+        nodeType: "assetStack",
+        files,
       },
     };
     set({ nodes: [...get().nodes, newNode] });

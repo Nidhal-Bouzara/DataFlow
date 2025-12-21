@@ -4,6 +4,7 @@ import { NodeProps } from "@xyflow/react";
 import { BaseNode } from "./BaseNode";
 import { Database, Play, GitBranch } from "lucide-react";
 import { WorkflowNode } from "@/store/workflowStore";
+import { StackedAssetNode } from "./StackedAssetNode";
 
 export function AssetNode(props: NodeProps<WorkflowNode>) {
   return <BaseNode {...props} icon={<Database className="w-8 h-8 text-blue-600" />} bgColor="bg-blue-50" borderColor="border-blue-200" />;
@@ -19,6 +20,7 @@ export function ConditionNode(props: NodeProps<WorkflowNode>) {
 
 export const nodeTypes = {
   asset: AssetNode,
+  assetStack: StackedAssetNode,
   action: ActionNode,
   condition: ConditionNode,
 };

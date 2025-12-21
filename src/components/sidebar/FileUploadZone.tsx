@@ -19,6 +19,7 @@ export function FileUploadZone() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const addFileAssetNode = useWorkflowStore((state) => state.addFileAssetNode);
+  const addStackedFileAssetNode = useWorkflowStore((state) => state.addStackedFileAssetNode);
 
   const handleFiles = useCallback(
     (files: FileList | null) => {
@@ -105,14 +106,12 @@ export function FileUploadZone() {
   };
 
   const addAllFilesToCanvas = () => {
-    uploadedFiles.forEach((uploadedFile, index) => {
-      const fileAsset: FileAsset = {
-        name: uploadedFile.file.name,
-        size: uploadedFile.file.size,
-        type: uploadedFile.file.type,
-      };
-      addFileAssetNode(fileAsset, { x: 300, y: 100 + index * 150 });
-    });
+    const fileAssets: FileAsset[] = uploadedFiles.map((uploadedFile) => ({
+      name: uploadedFile.file.name,
+      size: uploadedFile.file.size,
+      type: uploadedFile.file.type,
+    }));
+    addStackedFileAssetNode(fileAssets, { x: 300, y: 200 });
     setUploadedFiles([]);
   };
 
