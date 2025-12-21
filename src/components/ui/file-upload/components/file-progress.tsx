@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { useFileUpload } from "../context";
 import { FileStatus, type FileInfo } from "../types";
 
@@ -23,14 +24,27 @@ export const FileProgress: React.FC<FileProgressProps> = ({ progress, status, fi
     }
   }
 
-  if (!fileStatus || !fileProgress || fileStatus === FileStatus.Completed) return null;
+  if (!fileStatus || fileProgress === undefined || fileStatus === FileStatus.Completed) return null;
+
+  const getProgressColor = () => {
+    switch (fileStatus) {
+      case FileStatus.Error:
+        return "bg-destructive";
+      case FileStatus.Paused:
+        return "bg-amber-500";
+      default:
+        return "bg-primary";
+    }
+  };
 
   return (
     <div className={cn("w-full h-1.5 bg-muted rounded-full mt-2 overflow-hidden", className)}>
-      <div
-        className={cn("h-full rounded-full", fileStatus === FileStatus.Error ? "bg-destructive" : fileStatus === FileStatus.Paused ? "bg-amber-500" : "bg-primary")}
-        style={{ width: `${fileProgress}%` }}
-      ></div>
+      <motion.div
+        className={cn("h-full rounded-full", getProgressColor())}
+        initial={{ width: 0 }}
+        animate={{ width: fileProgress + "%" }}
+        transition={{ type: "spring", stiffness: 100, damping: 15 }}
+      />
     </div>
   );
 };
