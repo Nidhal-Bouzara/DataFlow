@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { CollapsibleSection } from "./CollapsibleSection";
-import { FileUploadZone } from "./FileUploadZone";
 import { toolSections } from "./toolSections";
 
 export function RightPanel() {
@@ -44,7 +43,6 @@ export function RightPanel() {
             section={section}
             isOpen={openSections[section.title] ?? section.defaultOpen ?? false}
             onToggle={() => toggleSection(section.title)}
-            extraContent={section.title === "Assets" ? <FileUploadZone /> : undefined}
           />
         ))}
       </div>

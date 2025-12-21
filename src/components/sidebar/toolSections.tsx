@@ -1,5 +1,6 @@
 import { Database, Play, GitBranch } from "lucide-react";
-import type { ToolSection } from "./CollapsibleSection";
+import type { ToolSection } from "./types";
+import { FileUploadZone } from "./FileUploadZone";
 
 export const toolSections: ToolSection[] = [
   {
@@ -7,10 +8,17 @@ export const toolSections: ToolSection[] = [
     defaultOpen: true,
     items: [
       {
-        icon: <Database className="w-4 h-4 text-blue-600" />,
-        label: "Asset",
-        description: "Data source or file input",
-        nodeType: "asset",
+        type: "component",
+        component: FileUploadZone,
+      },
+      {
+        type: "tool",
+        data: {
+          icon: <Database className="w-4 h-4 text-blue-600" />,
+          label: "Asset",
+          description: "Data source or file input",
+          nodeType: "asset",
+        },
       },
     ],
   },
@@ -19,10 +27,13 @@ export const toolSections: ToolSection[] = [
     defaultOpen: true,
     items: [
       {
-        icon: <Play className="w-4 h-4 text-green-600" />,
-        label: "Action",
-        description: "Process or transform data",
-        nodeType: "action",
+        type: "tool",
+        data: {
+          icon: <Play className="w-4 h-4 text-green-600" />,
+          label: "Action",
+          description: "Process or transform data",
+          nodeType: "action",
+        },
       },
     ],
   },
@@ -31,10 +42,13 @@ export const toolSections: ToolSection[] = [
     defaultOpen: true,
     items: [
       {
-        icon: <GitBranch className="w-4 h-4 text-amber-600" />,
-        label: "Condition",
-        description: "Branch based on conditions",
-        nodeType: "condition",
+        type: "tool",
+        data: {
+          icon: <GitBranch className="w-4 h-4 text-amber-600" />,
+          label: "Condition",
+          description: "Branch based on conditions",
+          nodeType: "condition",
+        },
       },
     ],
   },
