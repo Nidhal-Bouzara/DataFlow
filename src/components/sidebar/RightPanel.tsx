@@ -31,9 +31,6 @@ export function RightPanel() {
         </div>
       </div>
 
-      {/* File Upload Zone */}
-      <FileUploadZone />
-
       {/* Section Header */}
       <div className="px-4 py-3 border-b border-gray-100">
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Add Nodes</h2>
@@ -47,6 +44,7 @@ export function RightPanel() {
             section={section}
             isOpen={openSections[section.title] ?? section.defaultOpen ?? false}
             onToggle={() => toggleSection(section.title)}
+            extraContent={section.title === "Assets" ? <FileUploadZone /> : undefined}
           />
         ))}
       </div>
