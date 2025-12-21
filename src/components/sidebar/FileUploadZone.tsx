@@ -125,7 +125,7 @@ export function FileUploadZone() {
   };
 
   return (
-    <div className="p-4 border-b border-gray-100">
+    <div className="p-4">
       {/* Drop Zone */}
       <div
         onClick={handleClick}
@@ -133,18 +133,18 @@ export function FileUploadZone() {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "relative rounded-xl border-2 border-dashed p-6 transition-all cursor-pointer",
-          "bg-neutral-900 border-neutral-600",
-          isDragging && "border-blue-500 bg-neutral-800",
-          "hover:border-neutral-500 hover:bg-neutral-800"
+          "relative rounded-lg border-2 border-dashed p-6 transition-all cursor-pointer",
+          "bg-gray-50 border-gray-300",
+          isDragging && "border-blue-500 bg-blue-50",
+          "hover:border-gray-400 hover:bg-gray-100"
         )}
       >
         <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileChange} accept="*/*" />
         <div className="flex flex-col items-center gap-3 text-center">
-          <Upload className="w-8 h-8 text-neutral-400" />
+          <Upload className="w-8 h-8 text-gray-400" />
           <div>
-            <p className="text-sm text-neutral-300">click or drop, {MAX_FILES} file to upload</p>
-            <p className="text-xs text-neutral-500 mt-1">file max can&apos;t exceed 10MB</p>
+            <p className="text-sm text-gray-700">click or drop, {MAX_FILES} file to upload</p>
+            <p className="text-xs text-gray-500 mt-1">file max can&apos;t exceed 10MB</p>
           </div>
         </div>
       </div>
