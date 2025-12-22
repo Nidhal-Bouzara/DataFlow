@@ -38,32 +38,18 @@ export function BaseNode({
     <div className="relative flex flex-col items-center group">
       {/* Input Handle with + Button (Top) - Only show on hover or when connected */}
       <div
-        className={cn("relative flex flex-col items-center transition-opacity duration-200", !hasIncomingEdge && !showTopConnector && "opacity-0 group-hover:opacity-100")}
+        className={cn("relative flex flex-col items-center transition-opacity duration-200 z-20", !hasIncomingEdge && !showTopConnector && "opacity-0 group-hover:opacity-100")}
         onMouseEnter={() => setShowTopConnector(true)}
         onMouseLeave={() => setShowTopConnector(false)}
       >
-        <Handle type="target" position={Position.Top} className="w-3! h-3! bg-gray-400! border-2! border-white! -top-6!" />
-        {hasIncomingEdge && <div className="w-px h-4 bg-gray-300" />}
-        {!hasIncomingEdge && (
-          <button
-            className={cn(
-              "w-6 h-6 rounded-full -mb-1",
-              "bg-orange-100 border-2 border-orange-400",
-              "flex items-center justify-center",
-              "hover:bg-orange-200 transition-colors",
-              "cursor-pointer"
-            )}
-          >
-            <Plus className="w-3.5 h-3.5 text-orange-500" />
-          </button>
-        )}
+        <Handle type="target" position={Position.Top} className="w-3! h-3! bg-gray-400! border-2! border-white! -top-3.5!" />
       </div>
 
       {/* Main Node Card with Badge Clipped to Top */}
       <div className="relative">
         {/* Floating Type Badge - Positioned to clip onto card */}
         {badgeLabel && (
-          <div className={cn("absolute -top-3 left-1/2 -translate-x-1/2 z-20", "px-3 py-1 rounded-full text-xs font-medium", "flex items-center gap-1 shadow-sm", badgeColor)}>
+          <div className={cn("absolute -top-3 left-1/2 -translate-x-1/2 z-10", "px-3 py-1 rounded-full text-xs font-medium", "flex items-center gap-1 shadow-sm", badgeColor)}>
             <span className="text-[10px]">●</span>
             {badgeLabel}
           </div>
@@ -79,9 +65,9 @@ export function BaseNode({
           )}
         >
           {/* Content */}
-          <div className="flex items-center gap-3">
+          <div className="drag-handle cursor-grab active:cursor-grabbing flex items-center gap-3">
             {/* Drag Handle */}
-            <div className="drag-handle cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+            <div className="text-gray-400 hover:text-gray-600">
               <GripVertical className="w-4 h-4" />
             </div>
 
@@ -97,27 +83,13 @@ export function BaseNode({
         </div>
       </div>
 
-      {/* Output Handle with + Button (Bottom) - Only show on hover or when connected */}
+      {/* Output Handle - Only show on hover or when connected */}
       <div
-        className={cn("relative flex flex-col items-center transition-opacity duration-200", !hasOutgoingEdge && !showBottomConnector && "opacity-0 group-hover:opacity-100")}
+        className={cn("relative transition-opacity duration-200", !hasOutgoingEdge && !showBottomConnector && "opacity-0 group-hover:opacity-100")}
         onMouseEnter={() => setShowBottomConnector(true)}
         onMouseLeave={() => setShowBottomConnector(false)}
       >
-        {hasOutgoingEdge && <div className="w-px h-4 bg-gray-300" />}
-        {!hasOutgoingEdge && (
-          <button
-            className={cn(
-              "w-6 h-6 rounded-full -mt-1",
-              "bg-orange-100 border-2 border-orange-400",
-              "flex items-center justify-center",
-              "hover:bg-orange-200 transition-colors",
-              "cursor-pointer"
-            )}
-          >
-            <Plus className="w-3.5 h-3.5 text-orange-500" />
-          </button>
-        )}
-        <Handle type="source" position={Position.Bottom} className="w-3! h-3! bg-gray-400! border-2! border-white! -bottom-6!" />
+        <Handle type="source" position={Position.Bottom} className="w-3! h-3! bg-gray-400! border-2! border-white!" />
       </div>
     </div>
   );

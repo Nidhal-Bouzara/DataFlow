@@ -89,7 +89,7 @@ function WorkflowCanvasInner() {
         connectionMode={ConnectionMode.Loose}
         connectionLineStyle={{ stroke: "#f97316", strokeWidth: 2, strokeDasharray: "5,5" }}
         edgesReconnectable={true}
-        reconnectRadius={15}
+        reconnectRadius={30}
         proOptions={{ hideAttribution: true }}
         className="bg-slate-50"
         nodeDragThreshold={1}
