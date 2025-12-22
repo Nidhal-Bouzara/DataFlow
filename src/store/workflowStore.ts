@@ -108,7 +108,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   onConnect: (connection) => {
     set({
-      edges: addEdge({ ...connection, type: "smoothstep" }, get().edges),
+      edges: addEdge({ ...connection, type: "dataFlow" }, get().edges),
     });
   },
 

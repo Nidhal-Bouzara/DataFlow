@@ -31,6 +31,26 @@ body {
   stroke-width: 2;
 }
 
+/* Data flow edge animation */
+@keyframes dataFlow {
+  0% {
+    stroke-dashoffset: 20;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.data-flow-animation {
+  animation: dataFlow 1.5s linear infinite;
+}
+
+/* Edge hover effect */
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  opacity: 1 !important;
+}
+
 .react-flow__controls {
   box-shadow: none !important;
 }

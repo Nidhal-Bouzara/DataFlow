@@ -6,7 +6,12 @@ import "@xyflow/react/dist/style.css";
 
 import { useWorkflowStore, NodeType } from "@/store/workflowStore";
 import { nodeTypes } from "@/components/nodes";
+import DataFlowEdge from "@/components/edges/DataFlowEdge";
 import { BottomToolbar } from "@/components/toolbar/BottomToolbar";
+
+const edgeTypes = {
+  dataFlow: DataFlowEdge,
+};
 
 function WorkflowCanvasInner() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -60,13 +65,13 @@ function WorkflowCanvasInner() {
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
         fitViewOptions={{ padding: 0.5 }}
         defaultEdgeOptions={{
-          type: "smoothstep",
-          style: { stroke: "#94a3b8", strokeWidth: 2 },
+          type: "dataFlow",
         }}
-        connectionLineStyle={{ stroke: "#94a3b8", strokeWidth: 2 }}
+        connectionLineStyle={{ stroke: "#6ee7b7", strokeWidth: 3 }}
         proOptions={{ hideAttribution: true }}
         className="bg-slate-50"
       >
