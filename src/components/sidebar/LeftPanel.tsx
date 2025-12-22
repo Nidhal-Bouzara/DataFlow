@@ -17,7 +17,7 @@ const navItems: NavItem[] = [
   { icon: <Settings className="w-5 h-5" />, label: "Settings" },
 ];
 
-export function LeftSidebar() {
+export function LeftPanel() {
   return (
     <aside className="w-16 bg-neutral-900 flex flex-col items-center py-4 gap-1">
       {/* Logo */}

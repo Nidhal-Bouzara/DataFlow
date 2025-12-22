@@ -37,7 +37,7 @@ export function StackedAssetNode({ data, selected }: NodeProps<WorkflowNode>) {
                 <p className="text-sm font-medium text-gray-900 mb-1">{data.label}</p>
                 {data.description && <p className="text-xs text-gray-900 opacity-70 mb-2">{data.description}</p>}
                 {files.length > 0 && (
-                  <div className="space-y-0.5 max-w-[180px]">
+                  <div className="space-y-0.5 max-w-45">
                     {files.slice(0, 3).map((file, idx) => (
                       <p key={idx} className="text-xs text-gray-700 truncate">
                         {file.name}
@@ -73,7 +73,7 @@ export function StackedAssetNode({ data, selected }: NodeProps<WorkflowNode>) {
             {data.description && <p className="text-xs text-gray-900 opacity-70 mb-2">{data.description}</p>}
             {/* File names list */}
             {files.length > 0 && (
-              <div className="space-y-0.5 max-w-[180px]">
+              <div className="space-y-0.5 max-w-45">
                 {files.slice(0, 3).map((file, idx) => (
                   <p key={idx} className="text-xs text-gray-700 truncate" title={file.name}>
                     {file.name}

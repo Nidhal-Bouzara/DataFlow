@@ -1,23 +1,9 @@
 "use client";
 
 import React from "react";
-import {
-  EdgeProps,
-  getBezierPath,
-  BaseEdge,
-} from "@xyflow/react";
+import { EdgeProps, getBezierPath, BaseEdge } from "@xyflow/react";
 
-export default function DataFlowEdge({
-  id,
-  sourceX,
-  sourceY,
-  targetX,
-  targetY,
-  sourcePosition,
-  targetPosition,
-  style = {},
-  markerEnd,
-}: EdgeProps) {
+export default function DataFlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, markerEnd }: EdgeProps) {
   const [edgePath] = getBezierPath({
     sourceX,
     sourceY,
@@ -49,28 +35,13 @@ export default function DataFlowEdge({
         {/* Animated dash pattern for flow effect */}
         <linearGradient id={`flow-gradient-${id}`} x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#6ee7b7" stopOpacity="0.8">
-            <animate
-              attributeName="stop-opacity"
-              values="0.3;0.8;0.3"
-              dur="2s"
-              repeatCount="indefinite"
-            />
+            <animate attributeName="stop-opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" />
           </stop>
           <stop offset="50%" stopColor="#10b981" stopOpacity="0.6">
-            <animate
-              attributeName="stop-opacity"
-              values="0.6;1;0.6"
-              dur="2s"
-              repeatCount="indefinite"
-            />
+            <animate attributeName="stop-opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" />
           </stop>
           <stop offset="100%" stopColor="#059669" stopOpacity="0.4">
-            <animate
-              attributeName="stop-opacity"
-              values="0.2;0.6;0.2"
-              dur="2s"
-              repeatCount="indefinite"
-            />
+            <animate attributeName="stop-opacity" values="0.2;0.6;0.2" dur="2s" repeatCount="indefinite" />
           </stop>
         </linearGradient>
       </defs>

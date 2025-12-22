@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Search } from "lucide-react";
-import { CollapsibleSection } from "./CollapsibleSection";
+import { CollapsibleSection } from "./framework";
 import { toolSections } from "./toolSections";
 
 export function RightPanel() {

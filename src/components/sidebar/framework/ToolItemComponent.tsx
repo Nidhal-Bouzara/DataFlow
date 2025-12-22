@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWorkflowStore } from "@/store/workflowStore";
-import type { ToolItem } from "./CollapsibleSection";
+import type { ToolItem } from "./types";
 
 interface ToolItemComponentProps {
   item: ToolItem;

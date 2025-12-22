@@ -1,5 +1,5 @@
 import { ChevronRight, ChevronDown } from "lucide-react";
-import { ToolSection } from "./types";
+import type { ToolSection } from "./types";
 import { SectionItemRenderer } from "./SectionItemRenderer";
 
 interface CollapsibleSectionProps {

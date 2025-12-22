@@ -1,4 +1,4 @@
-import { SectionItem } from "./types";
+import type { SectionItem } from "./types";
 import { ToolItemComponent } from "./ToolItemComponent";
 
 interface SectionItemRendererProps {

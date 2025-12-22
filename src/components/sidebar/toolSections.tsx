@@ -1,6 +1,6 @@
 import { Database, Play, GitBranch } from "lucide-react";
-import type { ToolSection } from "./types";
-import { FileUploadZone } from "./FileUploadZone";
+import type { ToolSection } from "./framework";
+import { FileUploadZone } from "./features/FileUploadZone";
 
 export const toolSections: ToolSection[] = [
   {
