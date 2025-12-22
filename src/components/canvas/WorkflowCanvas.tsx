@@ -86,7 +86,7 @@ function WorkflowCanvasInner() {
         defaultEdgeOptions={{
           type: "dataFlow",
         }}
-        connectionMode={ConnectionMode.Loose}
+        connectionMode={ConnectionMode.Strict}
         connectionLineStyle={{ stroke: "#f97316", strokeWidth: 2, strokeDasharray: "5,5" }}
         edgesReconnectable={true}
         reconnectRadius={30}
