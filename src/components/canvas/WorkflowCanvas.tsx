@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, ReactFlowProvider, useReactFlow } from "@xyflow/react";
+import { ReactFlow, Background, BackgroundVariant, Controls, MiniMap, ReactFlowProvider, useReactFlow, ConnectionMode, Edge, Connection } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 
 import { useWorkflowStore, NodeType } from "@/store/workflowStore";
 import { nodeTypes } from "@/components/nodes";
 import DataFlowEdge from "@/components/edges/DataFlowEdge";
 import { BottomToolbar } from "@/components/toolbar/BottomToolbar";
+import { resolveNodeCollisions } from "@/lib/utils";
 
 const edgeTypes = {
   dataFlow: DataFlowEdge,
@@ -17,7 +18,7 @@ function WorkflowCanvasInner() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode } = useWorkflowStore();
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode, reconnectEdge, setNodes } = useWorkflowStore();
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -52,6 +53,18 @@ function WorkflowCanvasInner() {
     selectNode(null);
   }, [selectNode]);
 
+  const handleReconnect = useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      reconnectEdge(oldEdge, newConnection);
+    },
+    [reconnectEdge]
+  );
+
+  const handleNodeDragStop = useCallback(() => {
+    const resolvedNodes = resolveNodeCollisions(nodes, { margin: 20, maxIterations: 10 });
+    setNodes(resolvedNodes);
+  }, [nodes, setNodes]);
+
   return (
     <div ref={reactFlowWrapper} className="flex-1 h-full relative">
       <ReactFlow
@@ -60,6 +73,8 @@ function WorkflowCanvasInner() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onReconnect={handleReconnect}
+        onNodeDragStop={handleNodeDragStop}
         onDragOver={onDragOver}
         onDrop={onDrop}
         onNodeClick={onNodeClick}
@@ -71,28 +86,19 @@ function WorkflowCanvasInner() {
         defaultEdgeOptions={{
           type: "dataFlow",
         }}
-        connectionLineStyle={{ stroke: "#6ee7b7", strokeWidth: 3 }}
+        connectionMode={ConnectionMode.Loose}
+        connectionLineStyle={{ stroke: "#f97316", strokeWidth: 2, strokeDasharray: "5,5" }}
+        edgesReconnectable={true}
+        reconnectRadius={15}
         proOptions={{ hideAttribution: true }}
         className="bg-slate-50"
+        nodeDragThreshold={1}
+        nodesDraggable={true}
+        selectNodesOnDrag={false}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#cbd5e1" />
         <Controls className="bg-white! border! border-gray-200! rounded-xl! shadow-sm!" showZoom={false} showFitView={true} showInteractive={false} />
-        <MiniMap
-          className="bg-white! border! border-gray-200! rounded-xl! shadow-sm!"
-          maskColor="rgba(0, 0, 0, 0.1)"
-          nodeColor={(node) => {
-            switch (node.type) {
-              case "asset":
-                return "#dbeafe"; // blue-100
-              case "action":
-                return "#dcfce7"; // green-100
-              case "condition":
-                return "#fef3c7"; // amber-100
-              default:
-                return "#f1f5f9"; // slate-100
-            }
-          }}
-        />
+        <MiniMap className="bg-white! border! border-gray-200! rounded-xl! shadow-sm!" maskColor="rgba(0, 0, 0, 0.1)" nodeColor={() => "#f8fafc"} />
       </ReactFlow>
       <BottomToolbar />
     </div>

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Node, Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange } from "@xyflow/react";
-import { generateUniqueId } from "@/lib/utils";
+import { generateUniqueId, findNonOverlappingPosition, resolveNodeCollisions } from "@/lib/utils";
 
 // Generic node types for extensible workflow editor
 export type NodeType = "asset" | "assetStack" | "action" | "condition";
@@ -34,6 +34,7 @@ interface WorkflowState {
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
+  reconnectEdge: (oldEdge: Edge, newConnection: Connection) => void;
   addNode: (nodeType: NodeType, position: { x: number; y: number }) => void;
   addFileAssetNode: (file: FileAsset, position: { x: number; y: number }) => void;
   addStackedFileAssetNode: (files: FileAsset[], position: { x: number; y: number }) => void;
@@ -45,30 +46,38 @@ interface WorkflowState {
 }
 
 // Node type definitions with default properties
-export const nodeDefaults: Record<NodeType, { label: string; description: string; bgColor: string; borderColor: string }> = {
+export const nodeDefaults: Record<NodeType, { label: string; description: string; bgColor: string; borderColor: string; badgeLabel: string; badgeColor: string }> = {
   asset: {
-    label: "Asset",
-    description: "Data source or file",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
+    label: "Data Source",
+    description: "",
+    bgColor: "bg-white",
+    borderColor: "border-gray-200",
+    badgeLabel: "Trigger",
+    badgeColor: "bg-green-100 text-green-600",
   },
   assetStack: {
     label: "Asset Stack",
-    description: "Multiple files",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-200",
+    description: "",
+    bgColor: "bg-white",
+    borderColor: "border-gray-200",
+    badgeLabel: "Assets",
+    badgeColor: "bg-blue-100 text-blue-600",
   },
   action: {
-    label: "Action",
-    description: "Process or transform",
-    bgColor: "bg-green-50",
-    borderColor: "border-green-200",
+    label: "Send email",
+    description: "",
+    bgColor: "bg-white",
+    borderColor: "border-gray-200",
+    badgeLabel: "Action",
+    badgeColor: "bg-red-100 text-red-500",
   },
   condition: {
-    label: "Condition",
-    description: "Branch logic",
-    bgColor: "bg-amber-50",
-    borderColor: "border-amber-200",
+    label: "Check condition",
+    description: "",
+    bgColor: "bg-white",
+    borderColor: "border-gray-200",
+    badgeLabel: "Check if/else",
+    badgeColor: "bg-orange-100 text-orange-500",
   },
 };
 
@@ -112,12 +121,21 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     });
   },
 
+  reconnectEdge: (oldEdge, newConnection) => {
+    set({
+      edges: get().edges.map((edge) => (edge.id === oldEdge.id ? { ...edge, source: newConnection.source!, target: newConnection.target! } : edge)),
+    });
+  },
+
   addNode: (nodeType, position) => {
     const defaults = nodeDefaults[nodeType];
+    const nonOverlappingPosition = findNonOverlappingPosition(get().nodes, position, { width: 300, height: 150 });
+
     const newNode: WorkflowNode = {
       id: generateUniqueId(nodeType),
       type: nodeType,
-      position,
+      position: nonOverlappingPosition,
+      dragHandle: ".drag-handle",
       data: {
         label: defaults.label,
         description: defaults.description,
@@ -128,10 +146,13 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   addFileAssetNode: (file, position) => {
+    const nonOverlappingPosition = findNonOverlappingPosition(get().nodes, position, { width: 300, height: 150 });
+
     const newNode: WorkflowNode = {
       id: generateUniqueId("asset"),
       type: "asset",
-      position,
+      position: nonOverlappingPosition,
+      dragHandle: ".drag-handle",
       data: {
         label: file.name,
         description: formatFileSize(file.size),
@@ -144,10 +165,13 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   addStackedFileAssetNode: (files, position) => {
     const totalSize = files.reduce((acc, f) => acc + f.size, 0);
+    const nonOverlappingPosition = findNonOverlappingPosition(get().nodes, position, { width: 300, height: 150 });
+
     const newNode: WorkflowNode = {
       id: generateUniqueId("assetStack"),
       type: "assetStack",
-      position,
+      position: nonOverlappingPosition,
+      dragHandle: ".drag-handle",
       data: {
         label: `${files.length} files`,
         description: formatFileSize(totalSize),

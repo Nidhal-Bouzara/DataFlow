@@ -20,10 +20,15 @@ body {
 
 /* React Flow custom styles */
 .react-flow__node {
+  cursor: default;
+}
+
+/* Only allow dragging from the drag handle */
+.react-flow__node .drag-handle {
   cursor: grab;
 }
 
-.react-flow__node:active {
+.react-flow__node .drag-handle:active {
   cursor: grabbing;
 }
 
