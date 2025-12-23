@@ -39,6 +39,7 @@ interface WorkflowState {
   addFileAssetNode: (file: FileAsset, position: { x: number; y: number }) => void;
   addStackedFileAssetNode: (files: FileAsset[], position: { x: number; y: number }) => void;
   removeNode: (nodeId: string) => void;
+  removeFileFromNode: (nodeId: string, fileName: string) => void;
   selectNode: (nodeId: string | null) => void;
   updateNodeData: (nodeId: string, data: Partial<WorkflowNode["data"]>) => void;
   setIsRunning: (isRunning: boolean) => void;
@@ -195,6 +196,27 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     set({
       nodes: get().nodes.filter((node) => node.id !== nodeId),
       edges: get().edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
+    });
+  },
+
+  removeFileFromNode: (nodeId, fileName) => {
+    const node = get().nodes.find((n) => n.id === nodeId);
+    if (!node?.data.files) return;
+
+    const updatedFiles = node.data.files.filter((f) => f.name !== fileName);
+
+    // If no files left, remove the entire node
+    if (updatedFiles.length === 0) {
+      get().removeNode(nodeId);
+      return;
+    }
+
+    // Update node with new file list
+    const totalSize = updatedFiles.reduce((acc, f) => acc + f.size, 0);
+    get().updateNodeData(nodeId, {
+      files: updatedFiles,
+      label: `${updatedFiles.length} file${updatedFiles.length > 1 ? "s" : ""}`,
+      description: formatFileSize(totalSize),
     });
   },
 
