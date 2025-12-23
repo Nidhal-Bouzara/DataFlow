@@ -50,14 +50,6 @@ export function BaseNode({
 
       {/* Main Node Card with Badge Clipped to Top */}
       <div className="relative">
-        {/* Floating Type Badge - Positioned to clip onto card */}
-        {badgeLabel && (
-          <div className={cn("absolute -top-3 left-1/2 -translate-x-1/2 z-10", "px-3 py-1 rounded-full text-xs font-medium", "flex items-center gap-1 shadow-sm", badgeColor)}>
-            <span className="text-[10px]">●</span>
-            {badgeLabel}
-          </div>
-        )}
-
         <div
           className={cn(
             "relative rounded-xl border shadow-sm transition-all duration-200",
@@ -69,6 +61,13 @@ export function BaseNode({
         >
           {/* Content */}
           <div className="drag-handle cursor-grab active:cursor-grabbing flex items-center gap-3">
+            {/* Floating Type Badge - Positioned to clip onto card */}
+            {badgeLabel && (
+              <div className={cn("absolute -top-3 left-1/2 -translate-x-1/2 z-10", "px-3 py-1 rounded-full text-xs font-medium", "flex items-center gap-1 shadow-sm", "drag-handle cursor-grab active:cursor-grabbing pointer-events-auto", badgeColor)}>
+                <span className="text-[10px]">●</span>
+                {badgeLabel}
+              </div>
+            )}
             {/* Drag Handle */}
             <div className="text-gray-400 hover:text-gray-600">
               <GripVertical className="w-4 h-4" />
