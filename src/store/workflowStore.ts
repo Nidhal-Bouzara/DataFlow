@@ -210,28 +210,28 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
   runWorkflow: () => {
     const { nodes, edges } = get();
-    
+
     // Identify nodes that form a workflow (connected via edges)
     const connectedNodeIds = new Set<string>();
     edges.forEach((edge) => {
       connectedNodeIds.add(edge.source);
       connectedNodeIds.add(edge.target);
     });
-    
+
     const workflowNodes = nodes.filter((node) => connectedNodeIds.has(node.id));
-    
+
     // Alert current state
     alert(
       `Total Nodes: ${nodes.length}\n` +
-      `Workflow Nodes (Connected): ${workflowNodes.length}\n` +
-      `Isolated Nodes: ${nodes.length - workflowNodes.length}\n` +
-      `Edges: ${edges.length}\n\n` +
-      `Workflow:\n${workflowNodes.map((n) => `- ${n.data.label} (${n.data.nodeType})`).join("\n") || "No connected nodes"}`
+        `Workflow Nodes (Connected): ${workflowNodes.length}\n` +
+        `Isolated Nodes: ${nodes.length - workflowNodes.length}\n` +
+        `Edges: ${edges.length}\n\n` +
+        `Workflow:\n${workflowNodes.map((n) => `- ${n.data.label} (${n.data.nodeType})`).join("\n") || "No connected nodes"}`
     );
-    
+
     console.log("Full State:", { nodes, edges });
     console.log("Workflow Nodes:", workflowNodes);
-    
+
     set({ isRunning: true });
     // Simulate workflow execution
     setTimeout(() => {
