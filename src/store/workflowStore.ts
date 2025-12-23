@@ -3,7 +3,7 @@ import { Node, Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges, No
 import { generateUniqueId, findNonOverlappingPosition } from "@/lib/utils";
 
 // Generic node types for extensible workflow editor
-export type NodeType = "asset" | "assetStack" | "action" | "condition" | "pdfExtract";
+export type NodeType = "asset" | "assetStack" | "action" | "condition" | "pdfExtract" | "processText";
 
 export interface FileAsset {
   name: string;
@@ -87,6 +87,14 @@ export const nodeDefaults: Record<NodeType, { label: string; description: string
     borderColor: "border-purple-200",
     badgeLabel: "PDF Extract",
     badgeColor: "bg-purple-100 text-purple-600",
+  },
+  processText: {
+    label: "Process Text",
+    description: "Transform and process text content",
+    bgColor: "bg-white",
+    borderColor: "border-emerald-200",
+    badgeLabel: "Text Process",
+    badgeColor: "bg-emerald-100 text-emerald-600",
   },
 };
 

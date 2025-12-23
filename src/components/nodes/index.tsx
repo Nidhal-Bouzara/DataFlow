@@ -6,6 +6,7 @@ import { Database, Mail, CheckSquare } from "lucide-react";
 import { WorkflowNode } from "@/store/workflowStore";
 import { StackedAssetNode } from "./StackedAssetNode";
 import { PdfExtractNode } from "./PdfExtractNode";
+import { ProcessTextNode } from "./ProcessTextNode";
 
 export function AssetNode(props: NodeProps<WorkflowNode>) {
   return (
@@ -52,4 +53,5 @@ export const nodeTypes = {
   action: ActionNode,
   condition: ConditionNode,
   pdfExtract: PdfExtractNode,
+  processText: ProcessTextNode,
 };

@@ -1,7 +1,8 @@
-import { Database, Play, GitBranch } from "lucide-react";
+import { GitBranch } from "lucide-react";
 import type { ToolSection } from "./framework";
 import { FileUploadZone } from "./features/FileUploadZone";
 import { ExtractPdfTextAction } from "./features/ExtractPdfTextAction";
+import { ProcessTextAction } from "./features/ProcessTextAction";
 
 export const toolSections: ToolSection[] = [
   {
@@ -11,7 +12,7 @@ export const toolSections: ToolSection[] = [
       {
         type: "component",
         component: FileUploadZone,
-      }
+      },
     ],
   },
   {
@@ -21,7 +22,12 @@ export const toolSections: ToolSection[] = [
       {
         type: "component",
         component: ExtractPdfTextAction,
-      }]
+      },
+      {
+        type: "component",
+        component: ProcessTextAction,
+      },
+    ],
   },
   {
     title: "Logic",
