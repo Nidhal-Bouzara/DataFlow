@@ -1,5 +1,5 @@
 {
-  "name": "datasets_manager",
+  "name": "dataflow",
   "version": "0.1.0",
   "private": true,
   "scripts": {
