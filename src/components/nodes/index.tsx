@@ -7,6 +7,7 @@ import { WorkflowNode } from "@/store/workflowStore";
 import { StackedAssetNode } from "./StackedAssetNode";
 import { ExtractTextNode } from "./ExtractTextNode";
 import { ProcessTextNode } from "./ProcessTextNode";
+import { ArtifactNode } from "./ArtifactNode";
 
 export function AssetNode(props: NodeProps<WorkflowNode>) {
   return (
@@ -54,4 +55,5 @@ export const nodeTypes = {
   condition: ConditionNode,
   extractText: ExtractTextNode,
   processText: ProcessTextNode,
+  artifact: ArtifactNode,
 };

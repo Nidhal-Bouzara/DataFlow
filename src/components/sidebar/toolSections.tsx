@@ -3,6 +3,7 @@ import type { ToolSection } from "./framework";
 import { FileUploadZone } from "./features/FileUploadZone";
 import { ExtractTextAction } from "./features/ExtractTextAction";
 import { ProcessTextAction } from "./features/ProcessTextAction";
+import { ArtifactAction } from "./features/ArtifactAction";
 
 export const toolSections: ToolSection[] = [
   {
@@ -12,6 +13,10 @@ export const toolSections: ToolSection[] = [
       {
         type: "component",
         component: FileUploadZone,
+      },
+      {
+        type: "component",
+        component: ArtifactAction,
       },
     ],
   },
