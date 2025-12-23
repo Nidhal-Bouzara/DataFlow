@@ -13,6 +13,7 @@ interface BaseNodeProps extends NodeProps<WorkflowNode> {
   textColor?: string;
   badgeLabel?: string;
   badgeColor?: string;
+  children?: React.ReactNode; // Allow custom content below the node
 }
 
 export function BaseNode({
@@ -25,6 +26,7 @@ export function BaseNode({
   textColor = "text-gray-900",
   badgeLabel,
   badgeColor = "bg-green-100 text-green-600",
+  children,
 }: BaseNodeProps) {
   const [showTopConnector, setShowTopConnector] = useState(false);
   const [showBottomConnector, setShowBottomConnector] = useState(false);
@@ -80,6 +82,9 @@ export function BaseNode({
               {data.description && <p className={cn("text-xs opacity-60", textColor)}>{data.description}</p>}
             </div>
           </div>
+
+          {/* Custom content area for node-specific controls */}
+          {children && <div className="mt-3 pt-3 border-t border-gray-100">{children}</div>}
         </div>
       </div>
 

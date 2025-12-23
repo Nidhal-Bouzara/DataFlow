@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -126,35 +127,36 @@ export function Tooltip({ content, children, side = "top", className, delayDurat
 
   const animationVariant = getAnimationVariant();
 
+  const tooltipContent =
+    isVisible ? (
+      <motion.div
+        ref={tooltipRef}
+        initial={animationVariant.initial}
+        animate={animationVariant.animate}
+        exit={animationVariant.exit}
+        transition={{ duration: 0.15, ease: "easeOut" }}
+        style={{
+          position: "fixed",
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          zIndex: 9999,
+        }}
+        className={cn("pointer-events-none", className)}
+      >
+        <div className="relative bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg max-w-xs">
+          {content}
+          <div className={getArrowStyles()} />
+        </div>
+      </motion.div>
+    ) : null;
+
   return (
     <>
       <div ref={triggerRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="inline-flex">
         {children}
       </div>
 
-      <AnimatePresence>
-        {isVisible && (
-          <motion.div
-            ref={tooltipRef}
-            initial={animationVariant.initial}
-            animate={animationVariant.animate}
-            exit={animationVariant.exit}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            style={{
-              position: "fixed",
-              left: `${position.x}px`,
-              top: `${position.y}px`,
-              zIndex: 9999,
-            }}
-            className={cn("pointer-events-none", className)}
-          >
-            <div className="relative bg-gray-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg max-w-xs">
-              {content}
-              <div className={getArrowStyles()} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {createPortal(<AnimatePresence>{tooltipContent}</AnimatePresence>, document.body)}
     </>
   );
 }
