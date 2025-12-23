@@ -18,9 +18,9 @@ export function ExtractPdfTextAction() {
   };
 
   return (
-    <div className="px-4 py-3 border-b border-gray-100">
+    <div className="px-4 py-3">
       {/* Action header with icon */}
-      <button onClick={handleAddAction} className="w-full flex items-start gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors text-left">
+      <button onClick={handleAddAction} className="cursor-pointer w-full flex items-start gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors text-left">
         <div className="w-8 h-8 rounded flex items-center justify-center bg-purple-100 shrink-0">
           <FileText className="w-4 h-4 text-purple-600" />
         </div>

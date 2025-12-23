@@ -11,16 +11,7 @@ export const toolSections: ToolSection[] = [
       {
         type: "component",
         component: FileUploadZone,
-      },
-      {
-        type: "tool",
-        data: {
-          icon: <Database className="w-4 h-4 text-blue-600" />,
-          label: "Asset",
-          description: "Data source or file input",
-          nodeType: "asset",
-        },
-      },
+      }
     ],
   },
   {
@@ -30,17 +21,7 @@ export const toolSections: ToolSection[] = [
       {
         type: "component",
         component: ExtractPdfTextAction,
-      },
-      {
-        type: "tool",
-        data: {
-          icon: <Play className="w-4 h-4 text-green-600" />,
-          label: "Action",
-          description: "Process or transform data",
-          nodeType: "action",
-        },
-      },
-    ],
+      }]
   },
   {
     title: "Logic",
