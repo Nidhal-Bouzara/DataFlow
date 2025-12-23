@@ -2,7 +2,7 @@
 
 import { Handle, Position, NodeProps, useStore } from "@xyflow/react";
 import { cn } from "@/lib/utils";
-import { Plus, GripVertical } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import { WorkflowNode } from "@/store/workflowStore";
 import { useMemo, useState } from "react";
 

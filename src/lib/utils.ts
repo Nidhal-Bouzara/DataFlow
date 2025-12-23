@@ -29,7 +29,7 @@ export function findNonOverlappingPosition(
   const margin = 20; // Minimum space between nodes
   const maxAttempts = 50;
 
-  let position = { ...initialPosition };
+  const position = { ...initialPosition };
   let attempt = 0;
 
   const checkOverlap = (pos: { x: number; y: number }) => {
@@ -88,7 +88,7 @@ export function resolveNodeCollisions<T extends Node>(
   } = {}
 ): T[] {
   const { margin = 20, maxIterations = 10 } = options;
-  let updatedNodes = nodes.map((node) => ({ ...node }));
+  const updatedNodes = nodes.map((node) => ({ ...node }));
 
   for (let iteration = 0; iteration < maxIterations; iteration++) {
     let hasCollision = false;

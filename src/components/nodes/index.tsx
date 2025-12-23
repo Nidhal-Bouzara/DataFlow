@@ -2,9 +2,10 @@
 
 import { NodeProps } from "@xyflow/react";
 import { BaseNode } from "./BaseNode";
-import { Database, Play, GitBranch, Globe, Smartphone, Mail, CheckSquare } from "lucide-react";
+import { Database, Mail, CheckSquare } from "lucide-react";
 import { WorkflowNode } from "@/store/workflowStore";
 import { StackedAssetNode } from "./StackedAssetNode";
+import { PdfExtractNode } from "./PdfExtractNode";
 
 export function AssetNode(props: NodeProps<WorkflowNode>) {
   return (
@@ -50,4 +51,5 @@ export const nodeTypes = {
   assetStack: StackedAssetNode,
   action: ActionNode,
   condition: ConditionNode,
+  pdfExtract: PdfExtractNode,
 };

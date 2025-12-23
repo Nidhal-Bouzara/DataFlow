@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { Node, Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange } from "@xyflow/react";
-import { generateUniqueId, findNonOverlappingPosition, resolveNodeCollisions } from "@/lib/utils";
+import { generateUniqueId, findNonOverlappingPosition } from "@/lib/utils";
 
 // Generic node types for extensible workflow editor
-export type NodeType = "asset" | "assetStack" | "action" | "condition";
+export type NodeType = "asset" | "assetStack" | "action" | "condition" | "pdfExtract";
 
 export interface FileAsset {
   name: string;
@@ -35,7 +35,7 @@ interface WorkflowState {
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
   reconnectEdge: (oldEdge: Edge, newConnection: Connection) => void;
-  addNode: (nodeType: NodeType, position: { x: number; y: number }) => void;
+  addNode: (nodeType: NodeType, position: { x: number; y: number }, config?: Record<string, unknown>) => void;
   addFileAssetNode: (file: FileAsset, position: { x: number; y: number }) => void;
   addStackedFileAssetNode: (files: FileAsset[], position: { x: number; y: number }) => void;
   removeNode: (nodeId: string) => void;
@@ -78,6 +78,14 @@ export const nodeDefaults: Record<NodeType, { label: string; description: string
     borderColor: "border-gray-200",
     badgeLabel: "Check if/else",
     badgeColor: "bg-orange-100 text-orange-500",
+  },
+  pdfExtract: {
+    label: "Extract Text from PDF",
+    description: "Extract text content from PDF files",
+    bgColor: "bg-white",
+    borderColor: "border-purple-200",
+    badgeLabel: "PDF Extract",
+    badgeColor: "bg-purple-100 text-purple-600",
   },
 };
 
@@ -127,7 +135,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
     });
   },
 
-  addNode: (nodeType, position) => {
+  addNode: (nodeType, position, config) => {
     const defaults = nodeDefaults[nodeType];
     const nonOverlappingPosition = findNonOverlappingPosition(get().nodes, position, { width: 300, height: 150 });
 
@@ -140,6 +148,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
         label: defaults.label,
         description: defaults.description,
         nodeType,
+        ...(config && { config }),
       },
     };
     set({ nodes: [...get().nodes, newNode] });

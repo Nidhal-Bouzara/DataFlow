@@ -1,6 +1,7 @@
 import { Database, Play, GitBranch } from "lucide-react";
 import type { ToolSection } from "./framework";
 import { FileUploadZone } from "./features/FileUploadZone";
+import { ExtractPdfTextAction } from "./features/ExtractPdfTextAction";
 
 export const toolSections: ToolSection[] = [
   {
@@ -26,6 +27,10 @@ export const toolSections: ToolSection[] = [
     title: "Actions",
     defaultOpen: true,
     items: [
+      {
+        type: "component",
+        component: ExtractPdfTextAction,
+      },
       {
         type: "tool",
         data: {
