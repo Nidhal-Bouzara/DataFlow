@@ -1,7 +1,7 @@
 import { GitBranch } from "lucide-react";
 import type { ToolSection } from "./framework";
 import { FileUploadZone } from "./features/FileUploadZone";
-import { ExtractPdfTextAction } from "./features/ExtractPdfTextAction";
+import { ExtractTextAction } from "./features/ExtractTextAction";
 import { ProcessTextAction } from "./features/ProcessTextAction";
 
 export const toolSections: ToolSection[] = [
@@ -21,7 +21,7 @@ export const toolSections: ToolSection[] = [
     items: [
       {
         type: "component",
-        component: ExtractPdfTextAction,
+        component: ExtractTextAction,
       },
       {
         type: "component",

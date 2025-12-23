@@ -5,7 +5,7 @@ import { BaseNode } from "./BaseNode";
 import { Database, Mail, CheckSquare } from "lucide-react";
 import { WorkflowNode } from "@/store/workflowStore";
 import { StackedAssetNode } from "./StackedAssetNode";
-import { PdfExtractNode } from "./PdfExtractNode";
+import { ExtractTextNode } from "./ExtractTextNode";
 import { ProcessTextNode } from "./ProcessTextNode";
 
 export function AssetNode(props: NodeProps<WorkflowNode>) {
@@ -52,6 +52,6 @@ export const nodeTypes = {
   assetStack: StackedAssetNode,
   action: ActionNode,
   condition: ConditionNode,
-  pdfExtract: PdfExtractNode,
+  extractText: ExtractTextNode,
   processText: ProcessTextNode,
 };
