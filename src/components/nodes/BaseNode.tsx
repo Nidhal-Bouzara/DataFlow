@@ -1,6 +1,7 @@
 "use client";
 
 import { Handle, Position, NodeProps, useStore } from "@xyflow/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { GripVertical } from "lucide-react";
 import { WorkflowNode } from "@/store/workflowStore";
@@ -76,10 +77,34 @@ export function BaseNode({
             {/* Icon */}
             <div className="w-8 h-8 rounded-lg bg-white/60 flex items-center justify-center">{icon}</div>
 
-            {/* Label */}
+            {/* Label with animated content */}
             <div className="flex-1">
-              <p className={cn("text-sm font-medium", textColor)}>{data.label}</p>
-              {data.description && <p className={cn("text-xs opacity-60", textColor)}>{data.description}</p>}
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={data.label}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className={cn("text-sm font-medium", textColor)}
+                >
+                  {data.label}
+                </motion.p>
+              </AnimatePresence>
+              {data.description && (
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={data.description}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className={cn("text-xs opacity-60", textColor)}
+                  >
+                    {data.description}
+                  </motion.p>
+                </AnimatePresence>
+              )}
             </div>
           </div>
 
