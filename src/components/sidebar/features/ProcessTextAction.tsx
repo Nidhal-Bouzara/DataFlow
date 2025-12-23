@@ -6,6 +6,11 @@ import { useWorkflowStore } from "@/store/workflowStore";
 export function ProcessTextAction() {
   const addNode = useWorkflowStore((state) => state.addNode);
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData("application/reactflow", "processText");
+    e.dataTransfer.effectAllowed = "move";
+  };
+
   const handleAddAction = () => {
     addNode(
       "processText",
@@ -24,7 +29,12 @@ export function ProcessTextAction() {
   return (
     <div className="px-4 py-3">
       {/* Action header with icon */}
-      <button onClick={handleAddAction} className="cursor-pointer w-full flex items-start gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors text-left">
+      <button
+        draggable
+        onDragStart={handleDragStart}
+        onClick={handleAddAction}
+        className="cursor-grab active:cursor-grabbing w-full flex items-start gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors text-left"
+      >
         <div className="w-8 h-8 rounded flex items-center justify-center bg-emerald-100 shrink-0">
           <Type className="w-4 h-4 text-emerald-600" />
         </div>

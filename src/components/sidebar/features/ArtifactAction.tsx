@@ -6,13 +6,18 @@ import { useWorkflowStore } from "@/store/workflowStore";
 export function ArtifactAction() {
   const addNode = useWorkflowStore((state) => state.addNode);
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData("application/reactflow", "artifact");
+    e.dataTransfer.effectAllowed = "move";
+  };
+
   const handleAddAction = () => {
     addNode(
       "artifact",
       { x: 300, y: 300 },
       {
         name: "Unnamed Artifact",
-        output: null,
+        outputs: [],
       }
     );
   };
@@ -20,7 +25,12 @@ export function ArtifactAction() {
   return (
     <div className="px-4 py-3">
       {/* Action header with icon */}
-      <button onClick={handleAddAction} className="cursor-pointer w-full flex items-start gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors text-left">
+      <button
+        draggable
+        onDragStart={handleDragStart}
+        onClick={handleAddAction}
+        className="cursor-grab active:cursor-grabbing w-full flex items-start gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors text-left"
+      >
         <div className="w-8 h-8 rounded flex items-center justify-center bg-cyan-100 shrink-0">
           <Package className="w-4 h-4 text-cyan-600" />
         </div>
