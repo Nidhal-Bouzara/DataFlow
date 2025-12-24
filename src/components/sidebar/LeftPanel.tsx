@@ -22,6 +22,7 @@ const navItems: NavItem[] = [
 
 export function LeftPanel() {
   const [isHovered, setIsHovered] = useState(false);
+  const [isHelpHovered, setIsHelpHovered] = useState(false);
 
   return (
     <aside className="w-16 bg-neutral-900 flex flex-col items-center py-4 gap-1">
@@ -49,9 +50,54 @@ export function LeftPanel() {
 
       {/* Bottom Items */}
       <div className="flex flex-col items-center gap-1">
-        <button className="w-10 h-10 rounded-xl flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors" title="Help">
-          <HelpCircle className="w-5 h-5" />
-        </button>
+        <motion.div className="relative" onHoverStart={() => setIsHelpHovered(true)} onHoverEnd={() => setIsHelpHovered(false)}>
+          <button className="w-10 h-10 rounded-xl flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors" title="Help">
+            <HelpCircle className="w-5 h-5" />
+          </button>
+
+          {/* Help Tooltip */}
+          <AnimatePresence>
+            {isHelpHovered && (
+              <motion.div
+                className="absolute left-full ml-2 bottom-0 z-50"
+                initial={{ opacity: 0, x: -10, scale: 0.9 }}
+                animate={{
+                  opacity: 1,
+                  x: 0,
+                  scale: 1,
+                  transition: {
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 25,
+                  },
+                }}
+                exit={{
+                  opacity: 0,
+                  x: -10,
+                  scale: 0.9,
+                  transition: { duration: 0.2 },
+                }}
+              >
+                <motion.div
+                  className="bg-neutral-800 border border-neutral-700 rounded-lg p-3 shadow-xl min-w-[250px] max-w-[300px]"
+                  initial={{ rotateY: -15 }}
+                  animate={{
+                    rotateY: 0,
+                    transition: { duration: 0.3 },
+                  }}
+                  style={{ transformStyle: "preserve-3d" }}
+                >
+                  <motion.h3 className="text-white text-sm font-bold mb-2" initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                    🚀 DataFlow Builder
+                  </motion.h3>
+                  <motion.p className="text-neutral-300 text-xs leading-relaxed" initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                    A visual workflow editor for building data processing pipelines. Drag and drop nodes to extract, process, and transform data with ease.
+                  </motion.p>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Creator Section */}
         <motion.div
