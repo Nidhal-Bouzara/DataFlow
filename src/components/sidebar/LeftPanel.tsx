@@ -23,6 +23,7 @@ const navItems: NavItem[] = [
 export function LeftPanel() {
   const [isHovered, setIsHovered] = useState(false);
   const [isHelpHovered, setIsHelpHovered] = useState(false);
+  const [hoveredNavIndex, setHoveredNavIndex] = useState<number | null>(null);
 
   return (
     <aside className="w-16 bg-neutral-900 flex flex-col items-center py-4 gap-1">
@@ -34,17 +35,58 @@ export function LeftPanel() {
       {/* Navigation Items */}
       <nav className="flex-1 flex flex-col items-center gap-1">
         {navItems.map((item, index) => (
-          <button
-            key={index}
-            className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
-              "hover:bg-neutral-800",
-              item.isActive ? "bg-neutral-700 text-white" : "text-neutral-400 hover:text-white"
-            )}
-            title={item.label}
-          >
-            {item.icon}
-          </button>
+          <motion.div key={index} className="relative" onHoverStart={() => setHoveredNavIndex(index)} onHoverEnd={() => setHoveredNavIndex(null)}>
+            <button
+              className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                item.isActive ? "bg-neutral-700 text-white hover:bg-neutral-600" : "text-neutral-600 cursor-not-allowed opacity-50"
+              )}
+              title={item.label}
+              disabled={!item.isActive}
+            >
+              {item.icon}
+            </button>
+
+            {/* Under Construction Tooltip */}
+            <AnimatePresence>
+              {!item.isActive && hoveredNavIndex === index && (
+                <motion.div
+                  className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50"
+                  initial={{ opacity: 0, x: -10, scale: 0.9 }}
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                    scale: 1,
+                    transition: {
+                      type: "spring",
+                      stiffness: 400,
+                      damping: 25,
+                    },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: -10,
+                    scale: 0.9,
+                    transition: { duration: 0.2 },
+                  }}
+                >
+                  <motion.div
+                    className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap"
+                    initial={{ rotateY: -15 }}
+                    animate={{
+                      rotateY: 0,
+                      transition: { duration: 0.3 },
+                    }}
+                    style={{ transformStyle: "preserve-3d" }}
+                  >
+                    <motion.p className="text-neutral-300 text-xs font-medium" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+                      🚧 Under Construction 🏗️
+                    </motion.p>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         ))}
       </nav>
 
