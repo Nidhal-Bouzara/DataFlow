@@ -56,6 +56,7 @@ export function ExtractTextNode({ id, data, ...props }: NodeProps<WorkflowNode>)
       borderColor="border-purple-200"
       badgeLabel="Text Extract"
       badgeColor="bg-purple-100 text-purple-600"
+      glowColor="#a855f7"
     >
       {/* Extract Options */}
       <div className="space-y-3">

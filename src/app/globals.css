@@ -12,6 +12,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@keyframes flow-animation {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-flow {
+  animation: flow-animation 1s linear infinite;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

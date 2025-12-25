@@ -110,6 +110,7 @@ export function ArtifactNode({ id, data, ...props }: NodeProps<WorkflowNode>) {
       borderColor="border-cyan-200"
       badgeLabel="Artifact"
       badgeColor="bg-cyan-100 text-cyan-600"
+      glowColor="#06b6d4"
     >
       <div className="space-y-3 w-120 max-w-180">
         {/* Artifact Name Editor */}

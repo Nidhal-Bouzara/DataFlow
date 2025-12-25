@@ -18,6 +18,7 @@ export function AssetNode(props: NodeProps<WorkflowNode>) {
       borderColor="border-gray-200"
       badgeLabel="Trigger"
       badgeColor="bg-green-100 text-green-600"
+      glowColor="#22c55e"
     />
   );
 }
@@ -31,6 +32,7 @@ export function ActionNode(props: NodeProps<WorkflowNode>) {
       borderColor="border-gray-200"
       badgeLabel="Action"
       badgeColor="bg-red-100 text-red-500"
+      glowColor="#ef4444"
     />
   );
 }
@@ -44,6 +46,7 @@ export function ConditionNode(props: NodeProps<WorkflowNode>) {
       borderColor="border-gray-200"
       badgeLabel="Check if/else"
       badgeColor="bg-orange-100 text-orange-500"
+      glowColor="#f97316"
     />
   );
 }

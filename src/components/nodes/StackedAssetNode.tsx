@@ -2,8 +2,9 @@
 
 import { Handle, Position, NodeProps, useStore } from "@xyflow/react";
 import { cn } from "@/lib/utils";
-import { Database, GripVertical, X, ChevronDown, ChevronUp, File } from "lucide-react";
+import { Database, GripVertical, X, ChevronDown, ChevronUp, File, Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { WorkflowNode, useWorkflowStore, FileAsset } from "@/store/workflowStore";
+import { WORKFLOW_THEME } from "@/lib/workflowTheme";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -129,6 +130,15 @@ export function StackedAssetNode({ id, data, selected }: NodeProps<WorkflowNode>
   const [showBottomConnector, setShowBottomConnector] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Global Workflow State
+  const nodeStatus = useWorkflowStore((state) => state.nodeStatus);
+  const status = nodeStatus[id] || "idle";
+  const isRunning = status === "running";
+  const isCompleted = status === "completed";
+  const isError = status === "error";
+
+  const glowColor = WORKFLOW_THEME.colors.assetStack; // Blue
+
   // Check if this node has incoming/outgoing edges
   const edges = useStore((state) => state.edges);
   const hasIncomingEdge = useMemo(() => edges.some((edge) => edge.target === id), [edges, id]);
@@ -138,6 +148,22 @@ export function StackedAssetNode({ id, data, selected }: NodeProps<WorkflowNode>
   const maxVisibleFiles = 5;
   const hasMoreFiles = files.length > maxVisibleFiles;
   const visibleFiles = isExpanded ? files : files.slice(0, maxVisibleFiles);
+
+  // Determine border color based on status
+  const getBorderColor = () => {
+    if (isError) return WORKFLOW_THEME.colors.error;
+    if (isRunning || isCompleted) return glowColor;
+    return ""; // Fallback
+  };
+
+  // Determine shadow based on status
+  const getBoxShadow = () => {
+    if (isError) return `0 0 0 4px ${WORKFLOW_THEME.colors.error}40`;
+    if (isRunning) return `0 0 0 4px ${glowColor}40, 0 10px 25px -5px ${glowColor}50`;
+    if (isCompleted) return `0 0 0 2px ${glowColor}, 0 4px 6px -1px ${glowColor}30`;
+    if (selected) return "0 0 0 2px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)";
+    return "";
+  };
 
   return (
     <div className="relative flex flex-col items-center group">
@@ -165,12 +191,17 @@ export function StackedAssetNode({ id, data, selected }: NodeProps<WorkflowNode>
           Assets
         </div>
 
-        <div
+        <motion.div
+          animate={{
+            scale: isRunning ? 1.05 : 1,
+            boxShadow: getBoxShadow(),
+            borderColor: getBorderColor(),
+          }}
+          transition={{ duration: 0.3 }}
           className={cn(
-            "relative rounded-xl border shadow-sm transition-all duration-200",
+            "relative rounded-xl border",
             "min-w-90 max-w-120 overflow-x-visible",
             "bg-white border-gray-200",
-            selected && "ring-2 ring-blue-500 ring-offset-2"
           )}
         >
           {/* File count badge */}
@@ -193,6 +224,17 @@ export function StackedAssetNode({ id, data, selected }: NodeProps<WorkflowNode>
               <p className="text-sm font-medium text-gray-900">{data.label}</p>
               {data.description && <p className="text-xs text-gray-500">{data.description}</p>}
             </div>
+
+            {/* Status Indicators */}
+            {isRunning && (
+              <Loader2 className="w-5 h-5 text-blue-500 animate-spin shrink-0" />
+            )}
+            {isCompleted && (
+              <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" />
+            )}
+            {isError && (
+              <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+            )}
           </div>
 
           {/* File List - Scrollable, Not Draggable */}
@@ -230,7 +272,7 @@ export function StackedAssetNode({ id, data, selected }: NodeProps<WorkflowNode>
               )}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Output Handle with + Button (Bottom) - Only show on hover or when connected */}

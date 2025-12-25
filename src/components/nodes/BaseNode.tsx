@@ -3,8 +3,9 @@
 import { Handle, Position, NodeProps, useStore } from "@xyflow/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { GripVertical } from "lucide-react";
-import { WorkflowNode } from "@/store/workflowStore";
+import { GripVertical, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { WorkflowNode, useWorkflowStore } from "@/store/workflowStore";
+import { WORKFLOW_THEME } from "@/lib/workflowTheme";
 import { useMemo, useState } from "react";
 
 interface BaseNodeProps extends NodeProps<WorkflowNode> {
@@ -14,6 +15,7 @@ interface BaseNodeProps extends NodeProps<WorkflowNode> {
   textColor?: string;
   badgeLabel?: string;
   badgeColor?: string;
+  glowColor?: string; // Hex color for active glow
   children?: React.ReactNode; // Allow custom content below the node
 }
 
@@ -27,15 +29,39 @@ export function BaseNode({
   textColor = "text-gray-900",
   badgeLabel,
   badgeColor = "bg-green-100 text-green-600",
+  glowColor = WORKFLOW_THEME.colors.running,
   children,
 }: BaseNodeProps) {
   const [showTopConnector, setShowTopConnector] = useState(false);
   const [showBottomConnector, setShowBottomConnector] = useState(false);
 
+  // Global Workflow State
+  const nodeStatus = useWorkflowStore((state) => state.nodeStatus);
+  const status = nodeStatus[id] || "idle";
+  const isRunning = status === "running";
+  const isCompleted = status === "completed";
+  const isError = status === "error";
+
   // Check if this node has incoming/outgoing edges
   const edges = useStore((state) => state.edges);
   const hasIncomingEdge = useMemo(() => edges.some((edge) => edge.target === id), [edges, id]);
   const hasOutgoingEdge = useMemo(() => edges.some((edge) => edge.source === id), [edges, id]);
+
+  // Determine border color based on status
+  const getBorderColor = () => {
+    if (isError) return WORKFLOW_THEME.colors.error;
+    if (isRunning || isCompleted) return glowColor;
+    return ""; // Fallback to class
+  };
+
+  // Determine shadow based on status
+  const getBoxShadow = () => {
+    if (isError) return `0 0 0 4px ${WORKFLOW_THEME.colors.error}40`;
+    if (isRunning) return `0 0 0 4px ${glowColor}40, 0 10px 25px -5px ${glowColor}50`;
+    if (isCompleted) return `0 0 0 2px ${glowColor}, 0 4px 6px -1px ${glowColor}30`;
+    if (selected) return "0 0 0 2px #3b82f6, 0 1px 2px 0 rgb(0 0 0 / 0.05)";
+    return "0 1px 2px 0 rgb(0 0 0 / 0.05)";
+  };
 
   return (
     <div className="relative flex flex-col items-center group">
@@ -50,13 +76,18 @@ export function BaseNode({
 
       {/* Main Node Card with Badge Clipped to Top */}
       <div className="relative">
-        <div
+        <motion.div
+          animate={{
+            scale: isRunning ? 1.05 : 1,
+            boxShadow: getBoxShadow(),
+            borderColor: getBorderColor(),
+          }}
+          transition={{ duration: 0.3 }}
           className={cn(
-            "relative rounded-xl border shadow-sm transition-all duration-200",
+            "relative rounded-xl border",
             "min-w-70 px-4 py-3",
             bgColor,
             borderColor,
-            selected && "ring-2 ring-blue-500 ring-offset-2"
           )}
         >
           {/* Content */}
@@ -105,11 +136,22 @@ export function BaseNode({
                 </AnimatePresence>
               )}
             </div>
+            
+            {/* Status Indicators */}
+            {isRunning && (
+              <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+            )}
+            {isCompleted && (
+              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            )}
+            {isError && (
+              <XCircle className="w-5 h-5 text-red-500" />
+            )}
           </div>
 
           {/* Custom content area for node-specific controls */}
           {children && <div className="mt-3 pt-3 border-t border-gray-100">{children}</div>}
-        </div>
+        </motion.div>
       </div>
 
       {/* Output Handle - Only show on hover or when connected */}

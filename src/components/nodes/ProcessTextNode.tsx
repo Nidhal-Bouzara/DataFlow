@@ -68,6 +68,7 @@ export function ProcessTextNode({ id, data, ...props }: NodeProps<WorkflowNode>)
       borderColor="border-emerald-200"
       badgeLabel="Text Process"
       badgeColor="bg-emerald-100 text-emerald-600"
+      glowColor="#10b981"
     >
       {/* Process Options */}
       <div className="space-y-3">
