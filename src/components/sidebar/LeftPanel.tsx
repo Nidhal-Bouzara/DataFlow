@@ -6,50 +6,64 @@ import { AppLogo } from "@/components/icons/BrandIcons";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface NavItem {
   icon: React.ReactNode;
   label: string;
-  isActive?: boolean;
+  href: string;
+  isActive?: boolean; // Kept for backward compatibility if needed, but logic will use pathname
 }
 
 const navItems: NavItem[] = [
-  { icon: <Home className="w-5 h-5" />, label: "Home", isActive: true },
-  { icon: <Workflow className="w-5 h-5" />, label: "Workflows" },
-  { icon: <Database className="w-5 h-5" />, label: "Assets" },
-  { icon: <Settings className="w-5 h-5" />, label: "Settings" },
+  { icon: <Home className="w-5 h-5" />, label: "Home", href: "/" },
+  { icon: <Workflow className="w-5 h-5" />, label: "Workflows", href: "/workflows" },
+  { icon: <Database className="w-5 h-5" />, label: "Assets", href: "/assets" },
+  { icon: <Settings className="w-5 h-5" />, label: "Settings", href: "/settings" },
 ];
 
 export function LeftPanel() {
   const [isHovered, setIsHovered] = useState(false);
   const [isHelpHovered, setIsHelpHovered] = useState(false);
   const [hoveredNavIndex, setHoveredNavIndex] = useState<number | null>(null);
+  const pathname = usePathname();
 
   return (
-    <aside className="w-16 bg-neutral-900 flex flex-col items-center py-4 gap-1">
+    <aside className="w-16 bg-neutral-900 flex flex-col items-center py-4 gap-1 shrink-0 z-50">
       {/* Logo */}
-      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-4">
+      <Link href="/" className="w-10 h-10 bg-white rounded-xl flex items-center justify-center mb-4 hover:scale-105 transition-transform">
         <AppLogo size={24} className="text-neutral-900" />
-      </div>
+      </Link>
 
       {/* Navigation Items */}
       <nav className="flex-1 flex flex-col items-center gap-1">
-        {navItems.map((item, index) => (
-          <motion.div key={index} className="relative" onHoverStart={() => setHoveredNavIndex(index)} onHoverEnd={() => setHoveredNavIndex(null)}>
-            <button
-              className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
-                item.isActive ? "bg-neutral-700 text-white hover:bg-neutral-600" : "text-neutral-600 cursor-not-allowed opacity-50"
-              )}
-              title={item.label}
-              disabled={!item.isActive}
-            >
-              {item.icon}
-            </button>
+        {navItems.map((item, index) => {
+          const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+          const isAvailable = item.href === "/" || item.href === "/workflows"; // Only Home and Workflows are implemented
 
-            {/* Under Construction Tooltip */}
-            <AnimatePresence>
-              {!item.isActive && hoveredNavIndex === index && (
+          return (
+            <motion.div key={index} className="relative" onHoverStart={() => setHoveredNavIndex(index)} onHoverEnd={() => setHoveredNavIndex(null)}>
+              <Link href={isAvailable ? item.href : "#"}>
+                <button
+                  className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                    isActive 
+                      ? "bg-neutral-700 text-white hover:bg-neutral-600" 
+                      : isAvailable 
+                        ? "text-neutral-400 hover:text-white hover:bg-neutral-800" 
+                        : "text-neutral-600 cursor-not-allowed opacity-50"
+                  )}
+                  title={item.label}
+                  disabled={!isAvailable}
+                >
+                  {item.icon}
+                </button>
+              </Link>
+
+              {/* Under Construction Tooltip */}
+              <AnimatePresence>
+                {!isAvailable && hoveredNavIndex === index && (
                 <motion.div
                   className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50"
                   initial={{ opacity: 0, x: -10, scale: 0.9 }}
@@ -86,8 +100,9 @@ export function LeftPanel() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </nav>
 
       {/* Bottom Items */}
