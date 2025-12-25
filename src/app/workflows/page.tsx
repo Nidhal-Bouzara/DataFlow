@@ -16,7 +16,15 @@ export default function WorkflowsPage() {
   const featuredWorkflows = mockWorkflows.filter((w) => w.isFeatured);
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden bg-slate-50 font-sans">
+    <div className="h-screen w-screen flex overflow-hidden bg-slate-50 font-sans relative">
+      {/* Preview Ribbon */}
+      <div className="absolute top-0 right-0 w-56 h-56 overflow-hidden pointer-events-none z-50">
+        <div className="absolute top-[32px] right-[-60px] w-[260px] rotate-45 bg-amber-400 text-amber-950 font-bold py-2 text-center shadow-lg border-2 border-amber-500/50">
+          <span className="block text-lg">PREVIEW</span>
+          <span className="block text-xs uppercase tracking-wider opacity-90">Under Construction</span>
+        </div>
+      </div>
+
       {/* Navigation Sidebar */}
       <LeftPanel />
 
