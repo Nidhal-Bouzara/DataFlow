@@ -18,7 +18,7 @@ function WorkflowCanvasInner() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode, reconnectEdge, setNodes } = useWorkflowStore();
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, selectNode, reconnectEdge, setNodes, takeSnapshot } = useWorkflowStore();
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -75,6 +75,7 @@ function WorkflowCanvasInner() {
         onConnect={onConnect}
         onReconnect={handleReconnect}
         onNodeDragStop={handleNodeDragStop}
+        onNodeDragStart={takeSnapshot}
         onDragOver={onDragOver}
         onDrop={onDrop}
         onNodeClick={onNodeClick}

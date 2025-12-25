@@ -28,6 +28,10 @@ interface WorkflowState {
   selectedNodeId: string | null;
   isRunning: boolean;
 
+  // History
+  past: { nodes: WorkflowNode[]; edges: Edge[] }[];
+  future: { nodes: WorkflowNode[]; edges: Edge[] }[];
+
   // Actions
   setNodes: (nodes: WorkflowNode[]) => void;
   setEdges: (edges: Edge[]) => void;
@@ -44,6 +48,11 @@ interface WorkflowState {
   updateNodeData: (nodeId: string, data: Partial<WorkflowNode["data"]>) => void;
   setIsRunning: (isRunning: boolean) => void;
   runWorkflow: () => void;
+  
+  // History Actions
+  takeSnapshot: () => void;
+  undo: () => void;
+  redo: () => void;
 }
 
 // Node type definitions with default properties
@@ -124,6 +133,48 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   edges: initialEdges,
   selectedNodeId: null,
   isRunning: false,
+  past: [],
+  future: [],
+
+  // History Actions
+  takeSnapshot: () => {
+    set((state) => ({
+      past: [...state.past, { nodes: state.nodes, edges: state.edges }],
+      future: [],
+    }));
+  },
+
+  undo: () => {
+    set((state) => {
+      if (state.past.length === 0) return state;
+
+      const previous = state.past[state.past.length - 1];
+      const newPast = state.past.slice(0, -1);
+
+      return {
+        nodes: previous.nodes,
+        edges: previous.edges,
+        past: newPast,
+        future: [{ nodes: state.nodes, edges: state.edges }, ...state.future],
+      };
+    });
+  },
+
+  redo: () => {
+    set((state) => {
+      if (state.future.length === 0) return state;
+
+      const next = state.future[0];
+      const newFuture = state.future.slice(1);
+
+      return {
+        nodes: next.nodes,
+        edges: next.edges,
+        past: [...state.past, { nodes: state.nodes, edges: state.edges }],
+        future: newFuture,
+      };
+    });
+  },
 
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
@@ -141,18 +192,21 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   onConnect: (connection) => {
+    get().takeSnapshot();
     set({
       edges: addEdge({ ...connection, type: "dataFlow" }, get().edges),
     });
   },
 
   reconnectEdge: (oldEdge, newConnection) => {
+    get().takeSnapshot();
     set({
       edges: get().edges.map((edge) => (edge.id === oldEdge.id ? { ...edge, source: newConnection.source!, target: newConnection.target! } : edge)),
     });
   },
 
   addNode: (nodeType, position, config) => {
+    get().takeSnapshot();
     const defaults = nodeDefaults[nodeType];
     const nonOverlappingPosition = findNonOverlappingPosition(get().nodes, position, { width: 300, height: 150 });
 
@@ -172,6 +226,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   addFileAssetNode: (file, position) => {
+    get().takeSnapshot();
     const nonOverlappingPosition = findNonOverlappingPosition(get().nodes, position, { width: 300, height: 150 });
 
     const newNode: WorkflowNode = {
@@ -190,6 +245,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   addStackedFileAssetNode: (files, position) => {
+    get().takeSnapshot();
     const totalSize = files.reduce((acc, f) => acc + f.size, 0);
     const nonOverlappingPosition = findNonOverlappingPosition(get().nodes, position, { width: 300, height: 150 });
 
@@ -209,6 +265,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   removeNode: (nodeId) => {
+    get().takeSnapshot();
     set({
       nodes: get().nodes.filter((node) => node.id !== nodeId),
       edges: get().edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
@@ -216,6 +273,11 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   removeFileFromNode: (nodeId, fileName) => {
+    // Note: We don't snapshot here because this calls updateNodeData or removeNode,
+    // which should handle the snapshotting themselves if we're careful.
+    // However, removeNode DOES snapshot. updateNodeData DOES snapshot.
+    // So we are safe.
+    
     const node = get().nodes.find((n) => n.id === nodeId);
     if (!node?.data.files) return;
 
@@ -239,6 +301,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
 
   updateNodeData: (nodeId, data) => {
+    get().takeSnapshot();
     set({
       nodes: get().nodes.map((node) => (node.id === nodeId ? { ...node, data: { ...node.data, ...data } } : node)),
     });

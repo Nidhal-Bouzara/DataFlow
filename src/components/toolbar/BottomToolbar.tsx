@@ -1,11 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Play, FileText, Save, Download, Settings, Undo, Wrench, MoreHorizontal, Minus, Plus } from "lucide-react";
+import { Play, FileText, Save, Download, Settings, Undo, Redo, Wrench, MoreHorizontal, Minus, Plus } from "lucide-react";
 import { useWorkflowStore } from "@/store/workflowStore";
 
 export function BottomToolbar() {
-  const { isRunning, runWorkflow } = useWorkflowStore();
+  const { isRunning, runWorkflow, undo, redo, past, future } = useWorkflowStore();
 
   return (
     <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
@@ -29,7 +29,18 @@ export function BottomToolbar() {
           <ToolbarButton icon={<Save className="w-4 h-4" />} label="Save" />
           <ToolbarButton icon={<Download className="w-4 h-4" />} label="Export" />
           <ToolbarButton icon={<Settings className="w-4 h-4" />} label="Settings" />
-          <ToolbarButton icon={<Undo className="w-4 h-4" />} label="Undo" />
+          <ToolbarButton 
+            icon={<Undo className="w-4 h-4" />} 
+            label="Undo" 
+            onClick={undo}
+            disabled={past.length === 0}
+          />
+          <ToolbarButton 
+            icon={<Redo className="w-4 h-4" />} 
+            label="Redo" 
+            onClick={redo}
+            disabled={future.length === 0}
+          />
           <ToolbarButton icon={<Wrench className="w-4 h-4" />} label="Tools" />
           <ToolbarButton icon={<MoreHorizontal className="w-4 h-4" />} label="More" />
         </div>
@@ -47,9 +58,17 @@ export function BottomToolbar() {
   );
 }
 
-function ToolbarButton({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
+function ToolbarButton({ icon, label, onClick, disabled }: { icon: React.ReactNode; label: string; onClick?: () => void; disabled?: boolean }) {
   return (
-    <button onClick={onClick} className="w-9 h-9 rounded-xl flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-colors" title={label}>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        "w-9 h-9 rounded-xl flex items-center justify-center transition-colors",
+        disabled ? "text-gray-300 cursor-not-allowed" : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+      )}
+      title={label}
+    >
       {icon}
     </button>
   );
