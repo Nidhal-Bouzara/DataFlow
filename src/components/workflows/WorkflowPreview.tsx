@@ -1,10 +1,11 @@
 "use client";
 
-import { ReactFlow, Background, BackgroundVariant, ReactFlowProvider, Edge, Node } from "@xyflow/react";
+import { ReactFlow, Background, BackgroundVariant, ReactFlowProvider, Edge, Node, Controls } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { nodeTypes } from "@/components/nodes";
 import DataFlowEdge from "@/components/edges/DataFlowEdge";
 import { useMemo } from "react";
+import { getAutoLayoutedElements } from "@/lib/utils";
 
 // Define edge types locally to avoid circular dependencies or complex imports if not exported centrally
 const edgeTypes = {
@@ -15,34 +16,40 @@ interface WorkflowPreviewProps {
   nodes: Node[];
   edges: Edge[];
   className?: string;
+  interactive?: boolean;
 }
 
-export function WorkflowPreview({ nodes, edges, className }: WorkflowPreviewProps) {
+export function WorkflowPreview({ nodes, edges, className, interactive = false }: WorkflowPreviewProps) {
+  // Apply auto-layout and memoize
+  const { nodes: layoutedNodes, edges: layoutedEdges } = useMemo(() => {
+    return getAutoLayoutedElements(nodes, edges);
+  }, [nodes, edges]);
+
   // Memoize nodes and edges to prevent unnecessary re-renders
   const flowNodes = useMemo(
     () =>
-      nodes.map((node) => ({
+      layoutedNodes.map((node) => ({
         ...node,
         draggable: false,
         connectable: false,
-        selectable: false,
+        selectable: interactive,
       })),
-    [nodes]
+    [layoutedNodes, interactive]
   );
 
   const flowEdges = useMemo(
     () =>
-      edges.map((edge) => ({
+      layoutedEdges.map((edge) => ({
         ...edge,
         animated: false, // Disable animation for static preview to save performance
-        focusable: false,
-        selectable: false,
+        focusable: interactive,
+        selectable: interactive,
       })),
-    [edges]
+    [layoutedEdges, interactive]
   );
 
   return (
-    <div className={`w-full h-full pointer-events-none ${className}`}>
+    <div className={`w-full h-full ${!interactive ? "pointer-events-none" : ""} ${className}`}>
       <ReactFlowProvider>
         <ReactFlow
           nodes={flowNodes}
@@ -53,16 +60,17 @@ export function WorkflowPreview({ nodes, edges, className }: WorkflowPreviewProp
           fitViewOptions={{ padding: 0.4 }}
           nodesDraggable={false}
           nodesConnectable={false}
-          elementsSelectable={false}
-          panOnDrag={false}
-          zoomOnScroll={false}
-          zoomOnPinch={false}
-          zoomOnDoubleClick={false}
-          preventScrolling={true}
+          elementsSelectable={interactive}
+          panOnDrag={interactive}
+          zoomOnScroll={interactive}
+          zoomOnPinch={interactive}
+          zoomOnDoubleClick={interactive}
+          preventScrolling={!interactive}
           proOptions={{ hideAttribution: true }}
           className="bg-slate-50/50"
         >
           <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#cbd5e1" className="opacity-50" />
+          {interactive && <Controls showInteractive={false} />}
         </ReactFlow>
       </ReactFlowProvider>
     </div>

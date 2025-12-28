@@ -80,10 +80,10 @@ export function FeaturedHero({ workflows }: FeaturedHeroProps) {
             {/* Right Preview */}
             <div className="w-1/2 relative bg-neutral-800/50 border-l border-neutral-800">
               <div className="absolute inset-0 opacity-90">
-                <WorkflowPreview nodes={currentWorkflow.nodes} edges={currentWorkflow.edges} />
+                <WorkflowPreview nodes={currentWorkflow.nodes} edges={currentWorkflow.edges} interactive={true} />
               </div>
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 via-transparent to-transparent pointer-events-none" />
             </div>
           </motion.div>
         </AnimatePresence>
