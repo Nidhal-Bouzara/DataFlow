@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Node, Edge, Connection, addEdge, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange } from "@xyflow/react";
 import { generateUniqueId, findNonOverlappingPosition } from "@/lib/utils";
 import { WORKFLOW_THEME, ExecutionStatus, EdgeStatus } from "@/lib/workflowTheme";
+import { initialNodes as preloadedNodes, initialEdges as preloadedEdges } from "@/data/initialWorkflow";
 
 // Generic node types for extensible workflow editor
 export type NodeType = "asset" | "assetStack" | "action" | "condition" | "extractText" | "processText" | "artifact";
@@ -32,7 +33,7 @@ interface WorkflowState {
   // History
   past: { nodes: WorkflowNode[]; edges: Edge[] }[];
   future: { nodes: WorkflowNode[]; edges: Edge[] }[];
-  
+
   // Execution Visualization State
   nodeStatus: Record<string, ExecutionStatus>;
   edgeStatus: Record<string, EdgeStatus>;
@@ -52,7 +53,7 @@ interface WorkflowState {
   selectNode: (nodeId: string | null) => void;
   updateNodeData: (nodeId: string, data: Partial<WorkflowNode["data"]>) => void;
   setIsRunning: (isRunning: boolean) => void;
-  
+
   // Runner API (Execution Control)
   startNode: (nodeId: string) => void;
   completeNode: (nodeId: string) => void;
@@ -61,7 +62,7 @@ interface WorkflowState {
   completeEdge: (edgeId: string) => void;
   resetExecution: () => void;
   runWorkflow: () => void;
-  
+
   // History Actions
   takeSnapshot: () => void;
   undo: () => void;
@@ -128,10 +129,6 @@ export const nodeDefaults: Record<NodeType, { label: string; description: string
   },
 };
 
-// Start with empty canvas - ready for user to build workflows
-const initialNodes: WorkflowNode[] = [];
-const initialEdges: Edge[] = [];
-
 // Helper function to format file size
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 Bytes";
@@ -142,13 +139,13 @@ function formatFileSize(bytes: number): string {
 }
 
 export const useWorkflowStore = create<WorkflowState>((set, get) => ({
-  nodes: initialNodes,
-  edges: initialEdges,
+  nodes: preloadedNodes,
+  edges: preloadedEdges,
   selectedNodeId: null,
   isRunning: false,
   past: [],
   future: [],
-  
+
   // Execution Visualization State
   nodeStatus: {},
   edgeStatus: {},
@@ -318,107 +315,113 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
   },
 
   setIsRunning: (isRunning) => set({ isRunning }),
-  
+
   // =================================================================
   // RUNNER API IMPLEMENTATION
   // =================================================================
-  
-  startNode: (nodeId) => set((state) => ({ 
-    nodeStatus: { ...state.nodeStatus, [nodeId]: "running" } 
-  })),
-  
-  completeNode: (nodeId) => set((state) => ({ 
-    nodeStatus: { ...state.nodeStatus, [nodeId]: "completed" } 
-  })),
-  
-  failNode: (nodeId) => set((state) => ({ 
-    nodeStatus: { ...state.nodeStatus, [nodeId]: "error" } 
-  })),
-  
-  activateEdge: (edgeId) => set((state) => ({ 
-    edgeStatus: { ...state.edgeStatus, [edgeId]: "running" } 
-  })),
-  
-  completeEdge: (edgeId) => set((state) => ({ 
-    edgeStatus: { ...state.edgeStatus, [edgeId]: "completed" } 
-  })),
-  
-  resetExecution: () => set({ 
-    nodeStatus: {}, 
-    edgeStatus: {}, 
-    isRunning: false 
-  }),
+
+  startNode: (nodeId) =>
+    set((state) => ({
+      nodeStatus: { ...state.nodeStatus, [nodeId]: "running" },
+    })),
+
+  completeNode: (nodeId) =>
+    set((state) => ({
+      nodeStatus: { ...state.nodeStatus, [nodeId]: "completed" },
+    })),
+
+  failNode: (nodeId) =>
+    set((state) => ({
+      nodeStatus: { ...state.nodeStatus, [nodeId]: "error" },
+    })),
+
+  activateEdge: (edgeId) =>
+    set((state) => ({
+      edgeStatus: { ...state.edgeStatus, [edgeId]: "running" },
+    })),
+
+  completeEdge: (edgeId) =>
+    set((state) => ({
+      edgeStatus: { ...state.edgeStatus, [edgeId]: "completed" },
+    })),
+
+  resetExecution: () =>
+    set({
+      nodeStatus: {},
+      edgeStatus: {},
+      isRunning: false,
+    }),
 
   runWorkflow: async () => {
     const { nodes, edges, resetExecution, startNode, completeNode, activateEdge, completeEdge } = get();
-    
+
     // Reset state before starting
     resetExecution();
     set({ isRunning: true });
 
     // 1. Find starting nodes (nodes with no incoming edges)
     const incomingEdgeCounts = new Map<string, number>();
-    nodes.forEach(n => incomingEdgeCounts.set(n.id, 0));
-    edges.forEach(e => {
+    nodes.forEach((n) => incomingEdgeCounts.set(n.id, 0));
+    edges.forEach((e) => {
       const current = incomingEdgeCounts.get(e.target) || 0;
       incomingEdgeCounts.set(e.target, current + 1);
     });
 
     // Start with nodes that have 0 incoming edges
-    let currentLevelNodes = nodes.filter(n => (incomingEdgeCounts.get(n.id) || 0) === 0);
-    
+    let currentLevelNodes = nodes.filter((n) => (incomingEdgeCounts.get(n.id) || 0) === 0);
+
     // Fallback for circular/no-start graphs
     if (currentLevelNodes.length === 0 && nodes.length > 0) {
       currentLevelNodes = [nodes[0]];
     }
 
     // Helper for delay & randomness
-    const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     const randomDelay = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-    
+
     // Execution constants from Theme (could use store values too)
     const { min, max } = WORKFLOW_THEME.execution.nodeProcessTime;
     const edgeTravelTime = WORKFLOW_THEME.execution.edgeTravelTime;
 
     // Execution Loop
     console.log("Starting Workflow Execution");
-    
+
     while (currentLevelNodes.length > 0) {
-      const nodeIds = currentLevelNodes.map(n => n.id);
-      
+      const nodeIds = currentLevelNodes.map((n) => n.id);
+
       // A. START NODES
       console.log("Starting Nodes:", nodeIds);
-      nodeIds.forEach(id => startNode(id));
-      
+      nodeIds.forEach((id) => startNode(id));
+
       // Simulate Processing
       await wait(randomDelay(min, max));
-      
+
       // B. COMPLETE NODES
       console.log("Completing Nodes:", nodeIds);
-      nodeIds.forEach(id => completeNode(id));
-      
+      nodeIds.forEach((id) => completeNode(id));
+
       // Find Next Edges
-      const nextEdges = edges.filter(e => nodeIds.includes(e.source));
-      
+      const nextEdges = edges.filter((e) => nodeIds.includes(e.source));
+
       if (nextEdges.length === 0) {
         console.log("No more outgoing edges. Branch ended.");
-        break; 
+        break;
       }
 
       // C. ACTIVATE EDGES (Travel)
-      const edgeIds = nextEdges.map(e => e.id);
+      const edgeIds = nextEdges.map((e) => e.id);
       console.log("Activating Edges:", edgeIds);
-      edgeIds.forEach(id => activateEdge(id));
+      edgeIds.forEach((id) => activateEdge(id));
 
       // Wait for travel
       await wait(edgeTravelTime);
-      
+
       // D. COMPLETE EDGES (Arrival)
-      edgeIds.forEach(id => completeEdge(id));
+      edgeIds.forEach((id) => completeEdge(id));
 
       // Prepare next set of nodes
-      const nextNodeIds = nextEdges.map(e => e.target);
-      currentLevelNodes = nodes.filter(n => nextNodeIds.includes(n.id));
+      const nextNodeIds = nextEdges.map((e) => e.target);
+      currentLevelNodes = nodes.filter((n) => nextNodeIds.includes(n.id));
     }
 
     // Finished
