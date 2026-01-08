@@ -4,14 +4,7 @@ import { ExecutionStatus, EdgeStatus } from "@/lib/workflowTheme";
 /**
  * All node types supported by the workflow editor
  */
-export type NodeType =
-  | "asset"
-  | "assetStack"
-  | "action"
-  | "condition"
-  | "extractText"
-  | "processText"
-  | "artifact";
+export type NodeType = "asset" | "assetStack" | "action" | "condition" | "extractText" | "processText" | "artifact";
 
 /**
  * File asset representation for asset nodes
@@ -77,14 +70,14 @@ export interface WorkflowState extends HistoryState, ExecutionState {
   updateNodeData: (nodeId: string, data: Partial<WorkflowNode["data"]>) => void;
   setIsRunning: (isRunning: boolean) => void;
 
-  // Runner API (Execution Control)
-  startNode: (nodeId: string) => void;
-  completeNode: (nodeId: string) => void;
-  failNode: (nodeId: string) => void;
-  activateEdge: (edgeId: string) => void;
-  completeEdge: (edgeId: string) => void;
+  // Runner API (Execution Control) - UI-only visual status updates
+  setNodeVisualRunning: (nodeId: string) => void;
+  setNodeVisualCompleted: (nodeId: string) => void;
+  setNodeVisualError: (nodeId: string) => void;
+  setEdgeVisualRunning: (edgeId: string) => void;
+  setEdgeVisualCompleted: (edgeId: string) => void;
   resetExecution: () => void;
-  runWorkflow: () => void;
+  runWorkflow: (errorStrategy?: "halt" | "continue" | "retry") => void;
 
   // History Actions
   takeSnapshot: () => void;
