@@ -126,7 +126,7 @@ export const createExecutionActions = ({ get, set }: ExecutionActionsContext) =>
       console.log("[Workflow] Starting execution...");
 
       // Create executor with status controller
-      const exutor = new WorkflowExecutor(nodes, edges, statusController, errorStrategy);
+      const executor = new WorkflowExecutor(nodes, edges, statusController, errorStrategy);
 
       // Initialize and find starting nodes
       const hasStartingNodes = executor.prepare();
