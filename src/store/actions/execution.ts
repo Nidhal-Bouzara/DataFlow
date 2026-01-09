@@ -5,6 +5,7 @@ import { createStatusController } from "../execution/statusController";
 import { WorkflowExecutor } from "../execution/workflowExecutor";
 import { ErrorStrategy } from "../execution/types";
 import { waitFixed } from "../execution/timing";
+import { ProcessingMode } from "../nodeHandlers/types";
 
 /**
  * State getter interface for execution operations
@@ -114,10 +115,12 @@ export const createExecutionActions = ({ get, set }: ExecutionActionsContext) =>
      * - UI status updates (statusController)
      * - Timing (timing utilities)
      * - Error handling (configurable strategies)
+     * - Node processing (handlers)
      *
      * @param errorStrategy - How to handle node failures (default: "halt")
+     * @param processingMode - How to process nodes in each level (default: "parallel")
      */
-    runWorkflow: async (errorStrategy: ErrorStrategy = "halt") => {
+    runWorkflow: async (errorStrategy: ErrorStrategy = "halt", processingMode: ProcessingMode = "parallel") => {
       const state = get();
       const { nodes, edges } = state;
 
@@ -126,7 +129,7 @@ export const createExecutionActions = ({ get, set }: ExecutionActionsContext) =>
       console.log("[Workflow] Starting execution...");
 
       // Create executor with status controller
-      const executor = new WorkflowExecutor(nodes, edges, statusController, errorStrategy);
+      const executor = new WorkflowExecutor(nodes, edges, statusController, errorStrategy, processingMode);
 
       // Initialize and find starting nodes
       const hasStartingNodes = executor.prepare();

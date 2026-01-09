@@ -20,15 +20,6 @@ export { nodeDefaults } from "./constants/nodeDefaults";
 
 /**
  * Main Workflow Store
- *
- * Declarative composition of state and actions.
- * Implementation details are organized in modular files:
- * - src/store/types/workflow.ts - Type definitions
- * - src/store/constants/nodeDefaults.ts - Node configurations
- * - src/store/actions/history.ts - Undo/redo functionality
- * - src/store/actions/nodes.ts - Node CRUD operations
- * - src/store/actions/edges.ts - Edge operations
- * - src/store/actions/execution.ts - Workflow runner logic
  */
 export const useWorkflowStore = create<WorkflowState>((set, get) => {
   // ─────────────────────────────────────────────────

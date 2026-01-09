@@ -12,7 +12,15 @@ export type NodeType = "asset" | "assetStack" | "action" | "condition" | "extrac
 export interface FileAsset {
   name: string;
   size: number;
-  type: string;
+  type: string; // MIME type, e.g., "application/pdf"
+
+  /**
+   * Optional File blob for in-memory storage during workflow execution
+   *
+   * This allows handlers to access actual file content without server upload.
+   * Future implementation will move to server-side storage with URLs.
+   */
+  blob?: File;
 }
 
 /**
@@ -77,7 +85,7 @@ export interface WorkflowState extends HistoryState, ExecutionState {
   setEdgeVisualRunning: (edgeId: string) => void;
   setEdgeVisualCompleted: (edgeId: string) => void;
   resetExecution: () => void;
-  runWorkflow: (errorStrategy?: "halt" | "continue" | "retry") => void;
+  runWorkflow: (errorStrategy?: "halt" | "continue" | "retry", processingMode?: "parallel" | "sequential") => void;
 
   // History Actions
   takeSnapshot: () => void;

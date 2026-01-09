@@ -1,9 +1,11 @@
 import { Edge } from "@xyflow/react";
 import { WorkflowNode } from "../types/workflow";
-import { ErrorStrategy, LevelExecutionResult, NodeProcessingResult } from "./types";
+import { ErrorStrategy, LevelExecutionResult } from "./types";
 import { StatusController } from "./statusController";
 import { findStartingNodes, getFallbackStartNode, getOutgoingEdges, getNextLevelNodes } from "../utils/graphTraversal";
-import { waitForNodeProcessing, waitForEdgeTravel } from "./timing";
+import { handlerRegistry } from "../nodeHandlers";
+import { collectNodeInputs, NodeOutputMap } from "./inputCollector";
+import { ProcessingMode, NodeProcessingResult } from "../nodeHandlers/types";
 
 /**
  * Workflow Executor
@@ -22,16 +24,20 @@ export class WorkflowExecutor {
   private edges: Edge[];
   private statusController: StatusController;
   private errorStrategy: ErrorStrategy;
+  private processingMode: ProcessingMode;
   private currentLevel: WorkflowNode[];
   private failedNodes: Set<string>;
+  private nodeOutputs: NodeOutputMap;
 
-  constructor(nodes: WorkflowNode[], edges: Edge[], statusController: StatusController, errorStrategy: ErrorStrategy = "halt") {
+  constructor(nodes: WorkflowNode[], edges: Edge[], statusController: StatusController, errorStrategy: ErrorStrategy = "halt", processingMode: ProcessingMode = "parallel") {
     this.nodes = nodes;
     this.edges = edges;
     this.statusController = statusController;
     this.errorStrategy = errorStrategy;
+    this.processingMode = processingMode;
     this.currentLevel = [];
     this.failedNodes = new Set();
+    this.nodeOutputs = new Map();
   }
 
   /**
@@ -42,6 +48,7 @@ export class WorkflowExecutor {
   prepare(): boolean {
     this.statusController.resetAllStatuses();
     this.failedNodes.clear();
+    this.nodeOutputs.clear();
 
     // Find nodes with no incoming edges
     this.currentLevel = findStartingNodes(this.nodes, this.edges);
@@ -92,11 +99,18 @@ export class WorkflowExecutor {
     // STEP 2: Process Nodes & Handle Errors
     // ──────────────────────────────────────────────────
     const processingResults = await this.processNodes(this.currentLevel);
-    const failedInLevel = processingResults.filter((r) => !r.success);
+    const failedNodes = processingResults.filter((r) => !r.result.success).map((r) => r.nodeId);
 
-    if (failedInLevel.length > 0) {
-      return this.handleFailures(failedInLevel);
+    if (failedNodes.length > 0) {
+      return this.handleFailures(processingResults.filter((r) => !r.result.success));
     }
+
+    // Store outputs for downstream nodes
+    processingResults.forEach((r) => {
+      if (r.result.workflowState) {
+        this.nodeOutputs.set(r.nodeId, r.result.workflowState);
+      }
+    });
 
     // ──────────────────────────────────────────────────
     // STEP 3: Complete Nodes (Visual Status)
@@ -141,27 +155,68 @@ export class WorkflowExecutor {
   }
 
   /**
-   * Processes nodes (placeholder for future domain logic)
+   * Processes nodes using registered handlers
    *
-   * Currently returns success for all nodes. Future implementation
-   * will call nodeProcessor.processNode() for actual data transformation.
+   * Calls appropriate handler based on node type, collects inputs
+   * from predecessor nodes, and returns processing results.
    */
-  private async processNodes(nodes: WorkflowNode[]): Promise<Array<NodeProcessingResult & { nodeId: string }>> {
-    // Future: Implement actual node processing based on nodeType
-    // For now, simulate success for all nodes
-    await waitForNodeProcessing();
-    await waitForEdgeTravel();
-    return nodes.map((node) => ({
-      nodeId: node.id,
-      success: true,
-      outputs: {},
-    }));
+  private async processNodes(nodes: WorkflowNode[]): Promise<Array<{ nodeId: string; result: NodeProcessingResult }>> {
+    const results: Array<{ nodeId: string; result: NodeProcessingResult }> = [];
+
+    // Process nodes based on mode
+    if (this.processingMode === "sequential") {
+      // Sequential: Process one at a time
+      for (const node of nodes) {
+        const result = await this.processNode(node);
+        results.push({ nodeId: node.id, result });
+      }
+    } else {
+      // Parallel: Process all at once
+      const promises = nodes.map(async (node) => ({
+        nodeId: node.id,
+        result: await this.processNode(node),
+      }));
+      results.push(...(await Promise.all(promises)));
+    }
+
+    return results;
+  }
+
+  /**
+   * Process a single node with its handler
+   */
+  private async processNode(node: WorkflowNode): Promise<NodeProcessingResult> {
+    const { nodeType } = node.data;
+
+    // Get handler for this node type
+    const handler = handlerRegistry.getHandler(nodeType);
+    if (!handler) {
+      console.warn(`[Executor] No handler registered for node type: ${nodeType}`);
+      return {
+        success: false,
+        error: `No handler available for node type: ${nodeType}`,
+      };
+    }
+
+    // Collect inputs from predecessor nodes
+    const inputs = collectNodeInputs(node.id, this.edges, this.nodeOutputs);
+
+    try {
+      // Call handler to process the node
+      const result = await handler.process(node, inputs, this.processingMode);
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown processing error",
+      };
+    }
   }
 
   /**
    * Handles node failures based on error strategy
    */
-  private handleFailures(failures: Array<NodeProcessingResult & { nodeId: string }>): LevelExecutionResult {
+  private handleFailures(failures: Array<{ nodeId: string; result: NodeProcessingResult }>): LevelExecutionResult {
     const failedNodeIds = failures.map((f) => f.nodeId);
 
     // Mark failed nodes visually
@@ -173,7 +228,7 @@ export class WorkflowExecutor {
 
     console.error(
       `[Executor] Nodes failed: ${failedNodeIds.join(", ")}`,
-      failures.map((f) => f.error)
+      failures.map((f) => f.result.error)
     );
 
     // Apply error strategy
@@ -221,5 +276,20 @@ export class WorkflowExecutor {
    */
   getFailedNodes(): string[] {
     return Array.from(this.failedNodes);
+  }
+
+  /**
+   * Gets workflow state for a specific node
+   * Used by artifact nodes to display intermediate results
+   */
+  getNodeState(nodeId: string) {
+    return this.nodeOutputs.get(nodeId);
+  }
+
+  /**
+   * Gets all workflow states (useful for debugging)
+   */
+  getAllStates() {
+    return this.nodeOutputs;
   }
 }
