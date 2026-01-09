@@ -95,6 +95,7 @@ export function FileUploadZone() {
       name: uploadedFile.file.name,
       size: uploadedFile.file.size,
       type: uploadedFile.file.type,
+      blob: uploadedFile.file, // Include actual File blob for processing
     };
 
     // Calculate position based on existing nodes
@@ -110,6 +111,7 @@ export function FileUploadZone() {
       name: uploadedFile.file.name,
       size: uploadedFile.file.size,
       type: uploadedFile.file.type,
+      blob: uploadedFile.file, // Include actual File blob for processing
     }));
     addStackedFileAssetNode(fileAssets, { x: 300, y: 200 });
     setUploadedFiles([]);
