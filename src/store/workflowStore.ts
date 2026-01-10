@@ -54,6 +54,7 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => {
     isRunning: false,
     nodeStatus: {},
     edgeStatus: {},
+    nodeWorkflowStates: {},
 
     // ─────────────────────────────────────────────────
     // ACTIONS (Composed from modules)

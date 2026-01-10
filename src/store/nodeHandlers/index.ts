@@ -19,6 +19,7 @@ export { handlerRegistry, NodeHandlerRegistry } from "./registry";
 // Handlers
 export { AssetHandler } from "./assetHandler";
 export { PdfNodesHandler } from "./pdfHandler";
+export { ArtifactHandler } from "./artifactHandler";
 
 // Types
 export type {

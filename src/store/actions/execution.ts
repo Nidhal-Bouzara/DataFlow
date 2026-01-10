@@ -16,6 +16,7 @@ type ExecutionStateGetter = () => {
   isRunning: boolean;
   nodeStatus: Record<string, ExecutionStatus>;
   edgeStatus: Record<string, EdgeStatus>;
+  nodeWorkflowStates: Record<string, unknown>;
 };
 
 /**
@@ -104,7 +105,7 @@ export const createExecutionActions = ({ get, set }: ExecutionActionsContext) =>
      * Resets all execution state (nodes, edges, running flag)
      */
     resetExecution: () => {
-      set({ nodeStatus: {}, edgeStatus: {}, isRunning: false });
+      set({ nodeStatus: {}, edgeStatus: {}, isRunning: false, nodeWorkflowStates: {} });
     },
 
     /**
@@ -125,7 +126,7 @@ export const createExecutionActions = ({ get, set }: ExecutionActionsContext) =>
       const { nodes, edges } = state;
 
       // Mark workflow as running
-      set({ isRunning: true });
+      set({ isRunning: true, nodeWorkflowStates: {} });
       console.log("[Workflow] Starting execution...");
 
       // Create executor with status controller
@@ -143,6 +144,12 @@ export const createExecutionActions = ({ get, set }: ExecutionActionsContext) =>
       // Execute workflow level by level
       while (executor.hasNextLevel()) {
         const result = await executor.executeLevel();
+
+        // Update workflow states in store for artifact display
+        const currentStates = get().nodeWorkflowStates || {};
+        const allStates = executor.getAllStates();
+        const newStates = Object.fromEntries(allStates);
+        set({ nodeWorkflowStates: { ...currentStates, ...newStates } });
 
         if (!result.shouldContinue) {
           if (!result.success) {

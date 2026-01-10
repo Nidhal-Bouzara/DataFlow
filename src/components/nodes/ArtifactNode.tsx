@@ -7,13 +7,29 @@ import { WorkflowNode, useWorkflowStore } from "@/store/workflowStore";
 import { EditableNodeName } from "@/components/ui/EditableNodeName";
 import { MultiOutputViewer, type ArtifactOutputCollection } from "./ArtifactOutputViewer";
 import { ArtifactTestControls, generateTestOutput } from "./ArtifactTestControls";
+import type { WorkflowNodeState, NodeOutput } from "@/store/nodeHandlers/types";
 
 export function ArtifactNode({ id, data, ...props }: NodeProps<WorkflowNode>) {
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
+  const nodeWorkflowStates = useWorkflowStore((state) => state.nodeWorkflowStates);
 
-  // Get artifact name and outputs from config
+  // Get workflow state for this artifact node
+  const workflowState = nodeWorkflowStates?.[id] as WorkflowNodeState | undefined;
+
+  // Get artifact name and outputs from config or workflow state
   const artifactName = (data.config?.name as string) || "Unnamed Artifact";
-  const outputs = (data.config?.outputs as ArtifactOutputCollection) || [];
+
+  // Convert workflow state outputs to artifact output format
+  const workflowOutputs: ArtifactOutputCollection =
+    workflowState?.outputs?.map((output: NodeOutput) => ({
+      type: output.type === "json" ? "json" : output.type === "file" || output.type === "files" ? "file" : "text",
+      content: typeof output.data === "string" ? output.data : JSON.stringify(output.data, null, 2),
+      fileName: (output.metadata?.fileName as string) || undefined,
+      size: (output.metadata?.size as number) || undefined,
+    })) || [];
+
+  // Use workflow outputs if available, otherwise fall back to config outputs
+  const outputs = workflowOutputs.length > 0 ? workflowOutputs : (data.config?.outputs as ArtifactOutputCollection) || [];
 
   // Handle name updates
   const handleNameChange = (newName: string) => {

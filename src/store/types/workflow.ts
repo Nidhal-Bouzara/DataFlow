@@ -52,6 +52,7 @@ export interface ExecutionState {
   isRunning: boolean;
   nodeStatus: Record<string, ExecutionStatus>;
   edgeStatus: Record<string, EdgeStatus>;
+  nodeWorkflowStates: Record<string, unknown>; // WorkflowNodeState by node ID
 }
 
 /**

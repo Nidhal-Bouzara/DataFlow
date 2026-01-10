@@ -2,6 +2,7 @@ import { NodeType } from "../types/workflow";
 import { NodeHandler, NodeHandlerMap } from "./types";
 import { AssetHandler } from "./assetHandler";
 import { PdfNodesHandler } from "./pdfHandler";
+import { ArtifactHandler } from "./artifactHandler";
 
 /**
  * Node Handler Registry
@@ -23,6 +24,7 @@ export class NodeHandlerRegistry {
   private registerDefaultHandlers(): void {
     const assetHandler = new AssetHandler();
     const pdfHandler = new PdfNodesHandler();
+    const artifactHandler = new ArtifactHandler();
 
     // Asset nodes - data sources
     this.register("asset", assetHandler);
@@ -32,7 +34,10 @@ export class NodeHandlerRegistry {
     this.register("extractText", pdfHandler);
     this.register("processText", pdfHandler);
 
-    // Note: artifact, action, condition nodes not yet implemented
+    // Artifact nodes - visualization/output
+    this.register("artifact", artifactHandler);
+
+    // Note: action, condition nodes not yet implemented
     // They will be registered in future iterations
   }
 
